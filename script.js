@@ -108,8 +108,32 @@ function mostrarPresentes() {
     botao.className = "botao";
     botao.type = "button";
     botao.textContent = "Quero presentear";
-    botao.disabled = true;
-    botao.title = "Reservas serão habilitadas na próxima etapa";
+    botao.addEventListener("click", async () => {
+  const confirmar = window.confirm(
+    `Deseja mesmo reservar "${item.name}"?`
+  );
+
+  if (!confirmar) return;
+
+  botao.disabled = true;
+  botao.textContent = "Reservando...";
+
+  const { error } = await supabaseClient.rpc(
+    "reserve_product",
+    { p_product_id: item.id }
+  );
+
+  if (error) {
+    alert("Não foi possível reservar: " + error.message);
+    botao.disabled = false;
+    botao.textContent = "Quero presentear";
+    return;
+  }
+
+  alert("Presente reservado com sucesso! Obrigada pelo carinho. ♡");
+
+  await carregarPresentes();
+});
 
     card.appendChild(botao);
     areaPresentes.appendChild(card);
