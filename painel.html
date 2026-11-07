@@ -1,0 +1,76 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#F8F1F0">
+  <title>Painel Administrativo | Meu Enxoval</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div id="painel-admin">
+
+    <header class="cabecalho">
+      <h1>Meu Enxoval</h1>
+      <p>PAINEL ADMINISTRATIVO</p>
+    </header>
+
+    <main>
+      <section class="boas-vindas">
+        <h2>Bem-vinda ao seu cantinho! ♡</h2>
+        <p>Aqui você organiza todos os detalhes do seu enxoval.</p>
+      </section>
+
+      <section id="resumo">
+        <h2>Resumo da lista</h2>
+
+        <div class="resumo-cartoes">
+          <article class="produto">
+            <h3 id="total-produtos">0</h3>
+            <p>Todos os presentes</p>
+          </article>
+
+          <article class="produto">
+            <h3 id="total-disponiveis">0</h3>
+            <p>Preciso comprar</p>
+          </article>
+
+          <article class="produto">
+            <h3 id="total-reservados">0</h3>
+            <p>Reservados</p>
+          </article>
+
+          <article class="produto">
+            <h3 id="total-comprados">0</h3>
+            <p>Já comprei</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="gerenciar-presentes">
+        <h2>Organizar presentes</h2>
+
+        <button class="botao" id="adicionar-presente">
+          + Adicionar presente
+        </button>
+
+        <div id="lista-admin"></div>
+      </section>
+    </main>
+
+    <footer>
+      <p>Com carinho,</p>
+      <h2>Geovanna &amp; Gustavo</h2>
+      <small>Um novo lar, muitos começos. ♡</small>
+    </footer>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="painel.js"></script>
+
+</body>
+</html>
