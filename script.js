@@ -55,10 +55,17 @@ async function carregarPresentes() {
     .eq("status", "available");
 
   if (error) {
-    console.error(error);
-    areaPresentes.innerHTML =
-      "<p>Não foi possível carregar os presentes. Tente novamente.</p>";
-    return;
+  console.error("Erro Supabase:", error);
+
+  areaPresentes.innerHTML = `
+    <p style="background:white;padding:20px;border-radius:12px;">
+      Erro: ${error.code || "sem código"}<br>
+      ${error.message}<br>
+      ${error.details || ""}
+    </p>
+  `;
+
+  return;
   }
 
   const presentes = categoriaSelecionada === "Todos"
