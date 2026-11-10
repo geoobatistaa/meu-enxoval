@@ -108,32 +108,44 @@ function mostrarPresentes() {
     botao.className = "botao";
     botao.type = "button";
     botao.textContent = "Quero presentear";
+
     botao.addEventListener("click", async () => {
-  const confirmar = window.confirm(
-    `Deseja mesmo reservar "${item.name}"?`
-  );
+      const confirmar = window.confirm(
+        `Deseja mesmo reservar "${item.name}"?`
+      );
 
-  if (!confirmar) return;
+      if (!confirmar) return;
 
-  botao.disabled = true;
-  botao.textContent = "Reservando...";
+      botao.disabled = true;
+      botao.textContent = "Reservando...";
 
-  const { error } = await supabaseClient.rpc(
-    "reserve_product",
-    { p_product_id: item.id }
-  );
+      const { data, error } = await supabaseClient.rpc(
+        "reserve_product_with_code",
+        { p_product_id: item.id }
+      );
 
-  if (error) {
-    alert("Não foi possível reservar: " + error.message);
-    botao.disabled = false;
-    botao.textContent = "Quero presentear";
-    return;
-  }
+      if (error) {
+        alert("Não foi possível reservar: " + error.message);
+        botao.disabled = false;
+        botao.textContent = "Quero presentear";
+        return;
+      }
 
-  alert("Presente reservado com sucesso! Obrigada pelo carinho. ♡");
+      if (!data) {
+        alert("A reserva foi processada, mas não recebemos o código. Entre em contato com os noivos.");
+        await carregarPresentes();
+        return;
+      }
 
-  await carregarPresentes();
-});
+      alert(
+        `Presente reservado com sucesso! ♡\n\n` +
+        `Seu código de reserva é:\n\n${data}\n\n` +
+        `Guarde esse código! Você vai precisar dele para consultar sua reserva ou cancelá-la posteriormente.\n\n` +
+        `Obrigada pelo carinho!`
+      );
+
+      await carregarPresentes();
+    });
 
     card.appendChild(botao);
     areaPresentes.appendChild(card);
