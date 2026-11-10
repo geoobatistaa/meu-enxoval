@@ -130,3 +130,75 @@ botaoCancelar.addEventListener("click", () => {
   formularioProduto.reset();
 });
 document.getElementById("form-produto").addEventListener("submit", async (evento) => {
+  evento.preventDefault();
+
+  const nome = document.getElementById("nome-produto").value.trim();
+  const categoria = document.getElementById("categoria-produto").value;
+  const descricao = document.getElementById("descricao-produto").value.trim();
+  const arquivo = document.getElementById("imagem-produto").files[0];
+  const mensagem = document.getElementById("mensagem-produto");
+  const botaoSalvar = evento.target.querySelector('button[type="submit"]');
+
+  if (!arquivo) {
+    mensagem.textContent = "Selecione uma foto para o presente.";
+    return;
+  }
+
+  if (arquivo.size > 5 * 1024 * 1024) {
+    mensagem.textContent = "A imagem deve ter no máximo 5 MB.";
+    return;
+  }
+
+  if (!["image/jpeg", "image/png", "image/webp"].includes(arquivo.type)) {
+    mensagem.textContent = "Use uma imagem JPG, PNG ou WEBP.";
+    return;
+  }
+
+  botaoSalvar.disabled = true;
+  botaoSalvar.textContent = "Salvando...";
+  mensagem.textContent = "";
+
+  try {
+    const nomeArquivo = `${crypto.randomUUID()}-${arquivo.name}`;
+
+    const { error: erroUpload } = await supabaseClient
+      .storage
+      .from("product-images")
+      .upload(nomeArquivo, arquivo, {
+        contentType: arquivo.type
+      });
+
+    if (erroUpload) throw erroUpload;
+
+    const { data: imagemPublica } = supabaseClient
+      .storage
+      .from("product-images")
+      .getPublicUrl(nomeArquivo);
+
+    const { error: erroCadastro } = await supabaseClient
+      .from("products")
+      .insert({
+        name: nome,
+        category: categoria,
+        description: descricao || null,
+        image_url: imagemPublica.publicUrl,
+        status: "available",
+        is_published: true
+      });
+
+    if (erroCadastro) throw erroCadastro;
+
+    mensagem.textContent = "Presente cadastrado com sucesso! ♡";
+    evento.target.reset();
+
+    await carregarResumo();
+
+  } catch (erro) {
+    console.error("Erro ao cadastrar presente:", erro);
+    mensagem.textContent = "Não foi possível cadastrar. Tente novamente.";
+  } finally {
+    botaoSalvar.disabled = false;
+    botaoSalvar.textContent = "Salvar presente";
+  }
+});
+iniciarPainel();
