@@ -49,72 +49,114 @@
         </div>
       </section>
 
-      <<section id="gerenciar-presentes">
-  <h2>Organizar presentes</h2>
+      <section id="gerenciar-presentes">
 
-  <div id="filtros-admin">
-    <button class="filtro-admin ativo" data-filtro="todos">
-      Todos
-    </button>
+        <h2>Organizar presentes</h2>
 
-    <button class="filtro-admin" data-filtro="available">
-      Preciso comprar
-    </button>
+        <div id="filtros-admin">
+          <button class="filtro-admin ativo" data-filtro="todos">
+            Todos
+          </button>
 
-    <button class="filtro-admin" data-filtro="purchased">
-      Já comprei
-    </button>
+          <button class="filtro-admin" data-filtro="available">
+            Preciso comprar
+          </button>
 
-    <button class="filtro-admin" data-filtro="reserved">
-      Reservados
-    </button>
-  </div>
+          <button class="filtro-admin" data-filtro="purchased">
+            Já comprei
+          </button>
 
-  <button class="botao" id="adicionar-presente" type="button">
-  + Adicionar presente
-  </button>
-        
-<form id="form-produto" style="display:none; background:white; padding:22px; border-radius:18px; margin:18px 0;">
+          <button class="filtro-admin" data-filtro="reserved">
+            Reservados
+          </button>
+        </div>
 
-  <h3 style="color:#80618C; margin-bottom:15px;">
-    Novo presente ♡
-  </h3>
+        <button class="botao" id="adicionar-presente" type="button">
+          + Adicionar presente
+        </button>
 
-  <label for="nome-produto">Nome do presente</label>
-  <input type="text" id="nome-produto" placeholder="Ex.: Jogo de panelas" required>
+        <!-- FORMULÁRIO DE CADASTRO -->
+        <form id="form-produto" style="display:none; background:white; padding:22px; border-radius:18px; margin:18px 0;">
 
-  <label for="categoria-produto">Categoria</label>
-  <select id="categoria-produto" required>
-    <option value="">Escolha uma categoria</option>
-    <option value="Cozinha">Cozinha</option>
-    <option value="Quarto">Quarto</option>
-    <option value="Banheiro">Banheiro</option>
-    <option value="Sala">Sala</option>
-    <option value="Lavanderia">Lavanderia</option>
-    <option value="Decoração">Decoração</option>
-    <option value="Eletrodomésticos">Eletrodomésticos</option>
-    <option value="Outros">Outros</option>
-  </select>
+          <h3 style="color:#80618C; margin-bottom:15px;">
+            Novo presente ♡
+          </h3>
 
-  <label for="descricao-produto">Descrição (opcional)</label>
-  <textarea id="descricao-produto" placeholder="Detalhes do presente"></textarea>
+          <label for="nome-produto">Nome do presente</label>
+          <input type="text" id="nome-produto" placeholder="Ex.: Jogo de panelas" required>
 
-  <label for="imagem-produto">Foto do produto</label>
-  <input type="file" id="imagem-produto" accept="image/jpeg,image/png,image/webp" required>
+          <label for="categoria-produto">Categoria</label>
+          <select id="categoria-produto" required>
+            <option value="">Escolha uma categoria</option>
+            <option value="Cozinha">Cozinha</option>
+            <option value="Quarto">Quarto</option>
+            <option value="Banheiro">Banheiro</option>
+            <option value="Sala">Sala</option>
+            <option value="Lavanderia">Lavanderia</option>
+            <option value="Decoração">Decoração</option>
+            <option value="Eletrodomésticos">Eletrodomésticos</option>
+            <option value="Outros">Outros</option>
+          </select>
 
-  <button class="botao" type="submit">
-    Salvar presente
-  </button>
+          <label for="descricao-produto">Descrição (opcional)</label>
+          <textarea id="descricao-produto" placeholder="Detalhes do presente"></textarea>
 
-  <button class="botao" type="button" id="cancelar-produto" style="background:#B99AC3;">
-    Cancelar
-  </button>
+          <label for="imagem-produto">Foto do produto</label>
+          <input type="file" id="imagem-produto" accept="image/jpeg,image/png,image/webp" required>
 
-  <p id="mensagem-produto"></p>
-</form>
-        
+          <button class="botao" type="submit">
+            Salvar presente
+          </button>
+
+          <button class="botao" type="button" id="cancelar-produto" style="background:#B99AC3;">
+            Cancelar
+          </button>
+
+          <p id="mensagem-produto"></p>
+        </form>
+
+        <!-- FORMULÁRIO DE EDIÇÃO -->
+        <form id="form-editar-produto" style="display:none; background:white; padding:22px; border-radius:18px; margin:18px 0;">
+
+          <h3 style="color:#80618C; margin-bottom:15px;">
+            Editar presente ♡
+          </h3>
+
+          <label for="editar-nome">Nome do presente</label>
+          <input type="text" id="editar-nome" required>
+
+          <label for="editar-categoria">Categoria</label>
+          <select id="editar-categoria" required>
+            <option value="Cozinha">Cozinha</option>
+            <option value="Quarto">Quarto</option>
+            <option value="Banheiro">Banheiro</option>
+            <option value="Sala">Sala</option>
+            <option value="Lavanderia">Lavanderia</option>
+            <option value="Decoração">Decoração</option>
+            <option value="Eletrodomésticos">Eletrodomésticos</option>
+            <option value="Outros">Outros</option>
+          </select>
+
+          <label for="editar-descricao">Descrição (opcional)</label>
+          <textarea id="editar-descricao" placeholder="Detalhes do presente"></textarea>
+
+          <label for="editar-imagem">Trocar foto (opcional)</label>
+          <input type="file" id="editar-imagem" accept="image/jpeg,image/png,image/webp">
+
+          <button class="botao" type="submit">
+            Salvar alterações
+          </button>
+
+          <button class="botao" type="button" id="cancelar-edicao" style="background:#B99AC3;">
+            Cancelar
+          </button>
+
+          <p id="mensagem-edicao"></p>
+
+        </form>
 
         <div id="lista-admin"></div>
+
       </section>
     </main>
 
