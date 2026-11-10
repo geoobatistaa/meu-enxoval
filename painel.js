@@ -129,4 +129,4 @@ botaoCancelar.addEventListener("click", () => {
   formularioProduto.style.display = "none";
   formularioProduto.reset();
 });
-                     
+document.getElementById("form-produto").addEventListener("submit", async (evento) => {
