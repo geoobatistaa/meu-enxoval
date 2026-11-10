@@ -1,3 +1,4 @@
+
 const categorias = [
   { nome: "Todos", icone: "♡" },
   { nome: "Cozinha", icone: "🍽️" },
@@ -140,20 +141,11 @@ function mostrarPresentes() {
         if (error) throw error;
 
         if (!data) {
-          alert(
-            "Não recebemos o código da reserva. Entre em contato com os noivos."
-          );
+          alert("Não recebemos o código da reserva. Entre em contato com os noivos.");
           return;
         }
 
-        alert(
-          `Presente reservado com sucesso! ♡\n\n` +
-          `Ficamos muito felizes com seu carinho e por fazer parte desse momento tão especial!\n\n` +
-          `Seu código de reserva é:\n\n${data}\n\n` +
-          `Guarde esse código com carinho! Você poderá utilizá-lo para consultar os detalhes da sua reserva ou cancelá-la, caso necessário.\n\n` +
-          `Muito obrigada por fazer parte da nossa história! ♡`
-        );
-
+        abrirComprovante(data);
         await carregarPresentes();
 
       } catch (error) {
@@ -168,6 +160,91 @@ function mostrarPresentes() {
 
     card.appendChild(botao);
     areaPresentes.appendChild(card);
+  });
+}
+
+
+// COMPROVANTE DE RESERVA
+function abrirComprovante(codigoReserva) {
+  const modal = document.createElement("div");
+  modal.className = "modal-reserva";
+
+  const conteudo = document.createElement("div");
+  conteudo.className = "modal-conteudo";
+
+  conteudo.innerHTML = `
+    <button type="button" class="modal-fechar" aria-label="Fechar">×</button>
+
+    <span class="modal-icone">♡</span>
+
+    <h2>Presente reservado!</h2>
+
+    <p class="modal-mensagem">
+      Ficamos muito felizes com seu carinho e por fazer parte
+      desse momento tão especial!
+    </p>
+
+    <div class="modal-codigo-area">
+      <small>Seu código de reserva</small>
+      <div class="modal-codigo"></div>
+      <button type="button" class="modal-copiar">
+        Copiar código
+      </button>
+    </div>
+
+    <p class="modal-instrucao">
+      Guarde esse código com carinho! Você poderá utilizá-lo
+      para consultar os detalhes da sua reserva ou cancelá-la,
+      caso necessário.
+    </p>
+
+    <p class="modal-rodape">
+      Muito obrigada por fazer parte da nossa história! ♡
+    </p>
+  `;
+
+  conteudo.querySelector(".modal-codigo").textContent = codigoReserva;
+
+  modal.appendChild(conteudo);
+  document.body.appendChild(modal);
+
+  const botaoFechar = conteudo.querySelector(".modal-fechar");
+  const botaoCopiar = conteudo.querySelector(".modal-copiar");
+
+  function fecharModal() {
+    modal.remove();
+  }
+
+  botaoFechar.addEventListener("click", fecharModal);
+
+  modal.addEventListener("click", event => {
+    if (event.target === modal) {
+      fecharModal();
+    }
+  });
+
+  botaoCopiar.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(codigoReserva);
+
+      botaoCopiar.textContent = "Código copiado! ♡";
+
+    } catch (error) {
+      const campoTemporario = document.createElement("textarea");
+      campoTemporario.value = codigoReserva;
+      campoTemporario.style.position = "fixed";
+      campoTemporario.style.opacity = "0";
+
+      document.body.appendChild(campoTemporario);
+      campoTemporario.select();
+
+      const copiou = document.execCommand("copy");
+      campoTemporario.remove();
+
+      botaoCopiar.textContent = copiou
+        ? "Código copiado! ♡"
+        : "Não foi possível copiar. Anote o código.";
+    }
   });
 }
 
