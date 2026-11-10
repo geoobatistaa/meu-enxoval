@@ -1,6 +1,7 @@
 
 let produtosAdmin = [];
 let filtroAtual = "todos";
+let produtoEmEdicao = null;
 
 // INICIAR PAINEL E VERIFICAR ACESSO
 async function iniciarPainel() {
@@ -29,6 +30,8 @@ async function iniciarPainel() {
 
   configurarFiltros();
   configurarFormulario();
+  configurarEdicao();
+
   await carregarResumo();
 }
 
@@ -95,7 +98,6 @@ function mostrarListaAdmin() {
     const card = document.createElement("article");
     card.className = "produto";
 
-    // FOTO
     const imagem = document.createElement("img");
     imagem.src = item.image_url || "";
     imagem.alt = item.name;
@@ -107,24 +109,20 @@ function mostrarListaAdmin() {
 
     card.appendChild(imagem);
 
-    // NOME
     const nome = document.createElement("h3");
     nome.textContent = item.name;
     card.appendChild(nome);
 
-    // CATEGORIA
     const categoria = document.createElement("p");
     categoria.textContent = item.category;
     card.appendChild(categoria);
 
-    // DESCRIÇÃO
     if (item.description) {
       const descricao = document.createElement("p");
       descricao.textContent = item.description;
       card.appendChild(descricao);
     }
 
-    // STATUS
     const nomesStatus = {
       available: "Preciso comprar",
       reserved: "Reservado",
@@ -136,19 +134,17 @@ function mostrarListaAdmin() {
     status.textContent = nomesStatus[item.status] || item.status;
     card.appendChild(status);
 
-    // BOTÃO EDITAR
     const botaoEditar = document.createElement("button");
     botaoEditar.type = "button";
     botaoEditar.className = "botao";
     botaoEditar.textContent = "Editar";
 
     botaoEditar.addEventListener("click", () => {
-      editarPresente(item);
+      abrirEdicao(item);
     });
 
     card.appendChild(botaoEditar);
 
-    // BOTÃO EXCLUIR
     const botaoExcluir = document.createElement("button");
     botaoExcluir.type = "button";
     botaoExcluir.className = "botao";
@@ -163,55 +159,6 @@ function mostrarListaAdmin() {
 
     lista.appendChild(card);
   });
-}
-
-// EDITAR PRESENTE
-async function editarPresente(item) {
-  const novoNome = prompt("Nome do presente:", item.name);
-
-  if (novoNome === null) return;
-
-  if (!novoNome.trim()) {
-    alert("O nome do presente não pode ficar vazio.");
-    return;
-  }
-
-  const novaCategoria = prompt(
-    "Categoria do presente:",
-    item.category
-  );
-
-  if (novaCategoria === null) return;
-
-  if (!novaCategoria.trim()) {
-    alert("A categoria não pode ficar vazia.");
-    return;
-  }
-
-  const novaDescricao = prompt(
-    "Descrição do presente:",
-    item.description || ""
-  );
-
-  if (novaDescricao === null) return;
-
-  const { error } = await supabaseClient
-    .from("products")
-    .update({
-      name: novoNome.trim(),
-      category: novaCategoria.trim(),
-      description: novaDescricao.trim() || null
-    })
-    .eq("id", item.id);
-
-  if (error) {
-    console.error("Erro ao editar:", error);
-    alert("Não foi possível editar o presente: " + error.message);
-    return;
-  }
-
-  alert("Presente atualizado com sucesso! ♡");
-  await carregarResumo();
 }
 
 // EXCLUIR PRESENTE
@@ -237,18 +184,21 @@ async function excluirPresente(item) {
   await carregarResumo();
 }
 
-// ELEMENTOS DO FORMULÁRIO
+// ELEMENTOS DO FORMULÁRIO DE CADASTRO
 const botaoAdicionar = document.getElementById("adicionar-presente");
 const formularioProduto = document.getElementById("form-produto");
 const botaoCancelar = document.getElementById("cancelar-produto");
 
-// ABRIR FORMULÁRIO
+// ABRIR CADASTRO
 botaoAdicionar.addEventListener("click", () => {
   formularioProduto.style.display = "block";
+
+  document.getElementById("form-editar-produto").style.display = "none";
+
   formularioProduto.scrollIntoView({ behavior: "smooth" });
 });
 
-// FECHAR FORMULÁRIO
+// CANCELAR CADASTRO
 botaoCancelar.addEventListener("click", () => {
   formularioProduto.style.display = "none";
   formularioProduto.reset();
@@ -327,6 +277,136 @@ function configurarFormulario() {
     } finally {
       botaoSalvar.disabled = false;
       botaoSalvar.textContent = "Salvar presente";
+    }
+  });
+}
+
+// ABRIR FORMULÁRIO DE EDIÇÃO
+function abrirEdicao(item) {
+  produtoEmEdicao = item;
+
+  formularioProduto.style.display = "none";
+
+  const formularioEdicao =
+    document.getElementById("form-editar-produto");
+
+  formularioEdicao.style.display = "block";
+
+  document.getElementById("editar-nome").value = item.name;
+  document.getElementById("editar-categoria").value = item.category;
+  document.getElementById("editar-descricao").value =
+    item.description || "";
+
+  document.getElementById("editar-imagem").value = "";
+  document.getElementById("mensagem-edicao").textContent = "";
+
+  formularioEdicao.scrollIntoView({ behavior: "smooth" });
+}
+
+// CONFIGURAR EDIÇÃO
+function configurarEdicao() {
+  const formularioEdicao =
+    document.getElementById("form-editar-produto");
+
+  const botaoCancelarEdicao =
+    document.getElementById("cancelar-edicao");
+
+  botaoCancelarEdicao.addEventListener("click", () => {
+    formularioEdicao.style.display = "none";
+    formularioEdicao.reset();
+    produtoEmEdicao = null;
+
+    document.getElementById("mensagem-edicao").textContent = "";
+  });
+
+  formularioEdicao.addEventListener("submit", async (evento) => {
+    evento.preventDefault();
+
+    if (!produtoEmEdicao) return;
+
+    const nome = document.getElementById("editar-nome").value.trim();
+    const categoria = document.getElementById("editar-categoria").value;
+    const descricao = document.getElementById("editar-descricao").value.trim();
+    const arquivo = document.getElementById("editar-imagem").files[0];
+
+    const mensagem = document.getElementById("mensagem-edicao");
+    const botaoSalvar = evento.target.querySelector('button[type="submit"]');
+
+    if (!nome) {
+      mensagem.textContent = "O nome não pode ficar vazio.";
+      return;
+    }
+
+    if (arquivo && arquivo.size > 5 * 1024 * 1024) {
+      mensagem.textContent = "A imagem deve ter no máximo 5 MB.";
+      return;
+    }
+
+    if (
+      arquivo &&
+      !["image/jpeg", "image/png", "image/webp"].includes(arquivo.type)
+    ) {
+      mensagem.textContent = "Use uma imagem JPG, PNG ou WEBP.";
+      return;
+    }
+
+    botaoSalvar.disabled = true;
+    botaoSalvar.textContent = "Salvando...";
+    mensagem.textContent = "";
+
+    try {
+      let imagemUrl = produtoEmEdicao.image_url;
+
+      // ENVIAR NOVA FOTO, SE FOI ESCOLHIDA
+      if (arquivo) {
+        const nomeArquivo =
+          `${crypto.randomUUID()}-${arquivo.name}`;
+
+        const { error: erroUpload } = await supabaseClient
+          .storage
+          .from("product-images")
+          .upload(nomeArquivo, arquivo, {
+            contentType: arquivo.type
+          });
+
+        if (erroUpload) throw erroUpload;
+
+        const { data: imagemPublica } = supabaseClient
+          .storage
+          .from("product-images")
+          .getPublicUrl(nomeArquivo);
+
+        imagemUrl = imagemPublica.publicUrl;
+      }
+
+      // ATUALIZAR DADOS DO PRESENTE
+      const { error: erroAtualizacao } = await supabaseClient
+        .from("products")
+        .update({
+          name: nome,
+          category: categoria,
+          description: descricao || null,
+          image_url: imagemUrl
+        })
+        .eq("id", produtoEmEdicao.id);
+
+      if (erroAtualizacao) throw erroAtualizacao;
+
+      mensagem.textContent = "Presente atualizado com sucesso! ♡";
+
+      produtoEmEdicao = null;
+
+      await carregarResumo();
+
+      formularioEdicao.reset();
+      formularioEdicao.style.display = "none";
+
+    } catch (erro) {
+      console.error("Erro ao editar presente:", erro);
+      mensagem.textContent = erro.message || "Não foi possível atualizar.";
+    } finally {
+      botaoSalvar.disabled = false;
+      botaoSalvar.textContent = "Salvar alterações";
     }
   });
 }
