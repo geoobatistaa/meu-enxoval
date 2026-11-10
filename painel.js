@@ -115,8 +115,7 @@ function mostrarListaAdmin() {
   });
 }
 
-document
-  const botaoAdicionar = document.getElementById("adicionar-presente");
+const botaoAdicionar = document.getElementById("adicionar-presente");
 const formularioProduto = document.getElementById("form-produto");
 const botaoCancelar = document.getElementById("cancelar-produto");
 
