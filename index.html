@@ -18,14 +18,17 @@
 
 <body>
   <div id="app">
+
     <header class="cabecalho">
       <h1>Meu Enxoval</h1>
       <p>LISTA DE PRESENTES</p>
     </header>
 
     <main>
+
       <section class="boas-vindas">
         <h2>Que alegria compartilhar esse momento com você!</h2>
+
         <p>
           Estamos preparando nosso novo lar com muito carinho
           e criamos esta lista para quem deseja fazer parte
@@ -36,24 +39,29 @@
 
       <section id="minha-reserva">
         <h2>Minha reserva</h2>
+
         <p>
           Já reservou um presente? Consulte os detalhes
           da sua reserva utilizando o código que recebeu.
         </p>
 
-        <form id="form-consultar-reserva">
+        <div id="consulta-reserva">
+
           <input
             type="text"
             id="codigo-reserva"
             placeholder="Digite seu código de reserva"
             autocomplete="off"
-            required
           >
 
-          <button type="submit" id="botao-consultar-reserva">
+          <button
+            type="button"
+            id="botao-consultar-reserva"
+          >
             Consultar reserva
           </button>
-        </form>
+
+        </div>
 
         <div id="resultado-reserva"></div>
       </section>
@@ -65,6 +73,7 @@
       <section id="presentes">
         <!-- Os presentes serão adicionados aqui. -->
       </section>
+
     </main>
 
     <footer>
@@ -73,10 +82,12 @@
       <p>27 de novembro de 2027</p>
       <small>Um novo lar, muitos começos. ♡</small>
     </footer>
+
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
   <script src="script.js"></script>
+
 </body>
 </html>
