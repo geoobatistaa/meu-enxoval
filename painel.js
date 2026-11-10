@@ -182,7 +182,9 @@ function mostrarListaAdmin() {
       hidden: "Oculto"
     };
 
+    // STATUS COM CLASSE INDIVIDUAL
     const status = document.createElement("p");
+    status.className = `status-produto status-${item.status}`;
     status.textContent = nomesStatus[item.status] || item.status;
     card.appendChild(status);
 
@@ -201,6 +203,7 @@ function mostrarListaAdmin() {
       card.appendChild(botaoComprado);
     }
 
+    // BOTÃO EDITAR
     const botaoEditar = document.createElement("button");
     botaoEditar.type = "button";
     botaoEditar.className = "botao";
@@ -212,6 +215,7 @@ function mostrarListaAdmin() {
 
     card.appendChild(botaoEditar);
 
+    // BOTÃO EXCLUIR
     const botaoExcluir = document.createElement("button");
     botaoExcluir.type = "button";
     botaoExcluir.className = "botao";
@@ -522,4 +526,4 @@ function configurarEdicao() {
 
 // INICIAR
 iniciarPainel();
-    
+          
