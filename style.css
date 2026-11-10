@@ -414,3 +414,108 @@ footer small {
 .modal-voltar:hover {
   background: #F8F1F0;
 }
+
+/* Personalização da seção Minha reserva */
+#minha-reserva {
+  max-width: 720px;
+  margin: 35px auto 45px;
+  padding: 28px;
+  background: #FFFFFF;
+  border: 1px solid #E9DCEB;
+  border-radius: 22px;
+  text-align: center;
+  box-shadow: 0 5px 20px rgba(128, 97, 140, 0.06);
+}
+
+#minha-reserva h2 {
+  color: #80618C;
+  font-size: 1.8rem;
+  font-weight: normal;
+  margin-bottom: 8px;
+}
+
+#minha-reserva > p {
+  max-width: 520px;
+  margin: 0 auto 20px;
+  font-size: 0.9rem;
+  color: #756C70;
+}
+
+#consulta-reserva {
+  max-width: 440px;
+  margin: auto;
+  padding: 18px;
+  background: #F8F1F0;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+#codigo-reserva {
+  width: 100%;
+  min-width: 0;
+  padding: 13px 15px;
+  border: 1px solid #D8C6DC;
+  border-radius: 10px;
+  background: #FFFFFF;
+  color: #756C70;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  outline: none;
+}
+
+#codigo-reserva:focus {
+  border-color: #80618C;
+  box-shadow: 0 0 0 3px rgba(128, 97, 140, 0.10);
+}
+
+#botao-consultar-reserva {
+  width: 100%;
+  padding: 13px;
+  border: none;
+  border-radius: 30px;
+  background: #80618C;
+  color: #FFFFFF;
+  font-family: Georgia, serif;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+#botao-consultar-reserva:disabled {
+  opacity: 0.6;
+}
+
+#resultado-reserva:not(:empty) {
+  max-width: 440px;
+  margin: 18px auto 0;
+  padding: 16px;
+  background: #F8F1F0;
+  border: 1px solid #E9DCEB;
+  border-radius: 16px;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.resultado-consulta h3 {
+  color: #80618C;
+  font-size: 1.3rem;
+  font-weight: normal;
+  margin-bottom: 12px;
+}
+
+.resultado-consulta p {
+  margin: 7px 0;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 650px) {
+  #minha-reserva {
+    padding: 22px 16px;
+    margin: 30px auto 38px;
+  }
+
+  #minha-reserva h2 {
+    font-size: 1.6rem;
+  }
+}
