@@ -215,3 +215,34 @@ footer small {
 .filtro-admin:active {
   transform: scale(0.97);
 }
+/* Organização do formulário de presentes */
+#form-produto {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#form-produto label {
+  display: block;
+  margin-top: 8px;
+}
+
+#form-produto input,
+#form-produto select,
+#form-produto textarea {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px;
+  border: 1px solid #D8C6DC;
+  border-radius: 10px;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  background: #FFFFFF;
+  color: #756C70;
+}
+
+#form-produto button {
+  width: 100%;
+  margin-top: 8px;
+}
