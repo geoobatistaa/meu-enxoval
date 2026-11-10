@@ -2,6 +2,7 @@
 let produtosAdmin = [];
 let filtroAtual = "todos";
 
+// INICIAR PAINEL E VERIFICAR ACESSO
 async function iniciarPainel() {
   const { data: sessaoData, error: erroSessao } =
     await supabaseClient.auth.getSession();
@@ -30,6 +31,7 @@ async function iniciarPainel() {
   await carregarResumo();
 }
 
+// CARREGAR RESUMO DOS PRESENTES
 async function carregarResumo() {
   const { data, error } = await supabaseClient
     .rpc("get_admin_products");
@@ -57,6 +59,7 @@ async function carregarResumo() {
   mostrarListaAdmin();
 }
 
+// CONFIGURAR FILTROS
 function configurarFiltros() {
   const botoes = document.querySelectorAll(".filtro-admin");
 
@@ -73,6 +76,7 @@ function configurarFiltros() {
   });
 }
 
+// MOSTRAR LISTA DE PRESENTES
 function mostrarListaAdmin() {
   const lista = document.getElementById("lista-admin");
   lista.innerHTML = "";
@@ -115,20 +119,26 @@ function mostrarListaAdmin() {
   });
 }
 
+// ELEMENTOS DO FORMULÁRIO
 const botaoAdicionar = document.getElementById("adicionar-presente");
 const formularioProduto = document.getElementById("form-produto");
 const botaoCancelar = document.getElementById("cancelar-produto");
 
+// ABRIR FORMULÁRIO
 botaoAdicionar.addEventListener("click", () => {
   formularioProduto.style.display = "block";
   formularioProduto.scrollIntoView({ behavior: "smooth" });
 });
 
+// FECHAR FORMULÁRIO
 botaoCancelar.addEventListener("click", () => {
   formularioProduto.style.display = "none";
   formularioProduto.reset();
+  document.getElementById("mensagem-produto").textContent = "";
 });
-document.getElementById("form-produto").addEventListener("submit", async (evento) => {
+
+// CADASTRAR PRESENTE
+formularioProduto.addEventListener("submit", async (evento) => {
   evento.preventDefault();
 
   const nome = document.getElementById("nome-produto").value.trim();
@@ -192,13 +202,15 @@ document.getElementById("form-produto").addEventListener("submit", async (evento
 
     await carregarResumo();
 
-  } } catch (erro) {
-  console.error("Erro ao cadastrar presente:", erro);
-  mensagem.textContent = erro.message || "Erro ao cadastrar.";
-}
+  } catch (erro) {
+    console.error("Erro ao cadastrar presente:", erro);
+    mensagem.textContent = erro.message || "Erro ao cadastrar.";
   } finally {
     botaoSalvar.disabled = false;
     botaoSalvar.textContent = "Salvar presente";
   }
 });
+
+// INICIAR
 iniciarPainel();
+                                   
