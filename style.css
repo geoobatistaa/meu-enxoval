@@ -595,3 +595,129 @@ footer small {
     font-size: 1.6rem;
   }
 }
+/* =================================
+   CARDS DOS PRESENTES - PAINEL
+================================= */
+
+#lista-admin {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  margin: 22px 0 45px;
+}
+
+#lista-admin .produto {
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  background: #FFFFFF;
+  border: 1px solid #E9DCEB;
+  border-radius: 22px;
+  box-shadow: 0 5px 18px rgba(128, 97, 140, 0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#lista-admin .produto img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 15px;
+  margin-bottom: 8px;
+}
+
+#lista-admin .produto h3 {
+  color: #80618C;
+  font-size: 1.2rem;
+  line-height: 1.4;
+  margin: 10px 0 5px;
+}
+
+#lista-admin .produto p {
+  font-family: Arial, sans-serif;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  margin: 3px 0;
+}
+
+/* Categoria e descrição */
+#lista-admin .produto p:not(:last-of-type) {
+  color: #8D8388;
+}
+
+/* Etiqueta de status */
+#lista-admin .produto p:last-of-type {
+  display: inline-block;
+  align-self: flex-start;
+  width: fit-content;
+  margin: 12px 0 14px;
+  padding: 6px 13px;
+  background: #F2EAF3;
+  border: 1px solid #E9DCEB;
+  border-radius: 30px;
+  color: #80618C;
+  font-size: 0.78rem;
+  font-weight: bold;
+}
+
+/* Botões dos cards */
+#lista-admin .produto .botao {
+  margin-top: 9px;
+  padding: 12px 14px;
+  font-family: Georgia, serif;
+  font-size: 0.88rem;
+  transition: 0.2s ease;
+}
+
+/* Ação principal */
+#lista-admin .produto .botao:first-of-type {
+  background: #80618C;
+}
+
+/* Botão intermediário */
+#lista-admin .produto .botao:not(:first-of-type):not(:last-of-type) {
+  background: #FFFFFF;
+  color: #80618C;
+  border: 1px solid #D8C6DC;
+}
+
+/* Botão excluir */
+#lista-admin .produto .botao:last-of-type {
+  background: #F0E5F1;
+  color: #80618C;
+}
+
+#lista-admin .produto .botao:active {
+  transform: scale(0.98);
+}
+
+#lista-admin .produto .botao:disabled {
+  opacity: 0.6;
+}
+
+/* Ajustes para celular */
+@media (max-width: 650px) {
+  #lista-admin {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  #lista-admin .produto {
+    padding: 15px;
+    border-radius: 21px;
+  }
+
+  #lista-admin .produto img {
+    aspect-ratio: 1 / 1;
+  }
+
+  #lista-admin .produto h3 {
+    font-size: 1.25rem;
+  }
+}
+
+/* Ajustes para tablets */
+@media (min-width: 651px) and (max-width: 950px) {
+  #lista-admin {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
