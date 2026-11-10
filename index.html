@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -33,6 +34,30 @@
         </p>
       </section>
 
+      <section id="minha-reserva">
+        <h2>Minha reserva</h2>
+        <p>
+          Já reservou um presente? Consulte os detalhes
+          da sua reserva utilizando o código que recebeu.
+        </p>
+
+        <form id="form-consultar-reserva">
+          <input
+            type="text"
+            id="codigo-reserva"
+            placeholder="Digite seu código de reserva"
+            autocomplete="off"
+            required
+          >
+
+          <button type="submit" id="botao-consultar-reserva">
+            Consultar reserva
+          </button>
+        </form>
+
+        <div id="resultado-reserva"></div>
+      </section>
+
       <section id="categorias">
         <!-- Categorias serão adicionadas aqui. -->
       </section>
@@ -51,7 +76,7 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="supabase-config.js"></script>
-<script src="script.js"></script>
+  <script src="supabase-config.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
