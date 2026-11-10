@@ -1,4 +1,7 @@
 
+let produtosAdmin = [];
+let filtroAtual = "todos";
+
 async function iniciarPainel() {
   const { data: sessaoData, error: erroSessao } =
     await supabaseClient.auth.getSession();
@@ -23,6 +26,7 @@ async function iniciarPainel() {
     return;
   }
 
+  configurarFiltros();
   await carregarResumo();
 }
 
@@ -36,32 +40,53 @@ async function carregarResumo() {
     return;
   }
 
-  const produtos = data || [];
+  produtosAdmin = data || [];
 
-  const total = produtos.length;
-  const disponiveis = produtos.filter(
-    item => item.status === "available"
-  ).length;
-  const reservados = produtos.filter(
-    item => item.status === "reserved"
-  ).length;
-  const comprados = produtos.filter(
-    item => item.status === "purchased"
-  ).length;
+  document.getElementById("total-produtos").textContent =
+    produtosAdmin.length;
 
-  document.getElementById("total-produtos").textContent = total;
-  document.getElementById("total-disponiveis").textContent = disponiveis;
-  document.getElementById("total-reservados").textContent = reservados;
-  document.getElementById("total-comprados").textContent = comprados;
+  document.getElementById("total-disponiveis").textContent =
+    produtosAdmin.filter(item => item.status === "available").length;
 
-  mostrarListaAdmin(produtos);
+  document.getElementById("total-reservados").textContent =
+    produtosAdmin.filter(item => item.status === "reserved").length;
+
+  document.getElementById("total-comprados").textContent =
+    produtosAdmin.filter(item => item.status === "purchased").length;
+
+  mostrarListaAdmin();
 }
 
-function mostrarListaAdmin(produtos) {
+function configurarFiltros() {
+  const botoes = document.querySelectorAll(".filtro-admin");
+
+  botoes.forEach(botao => {
+    botao.addEventListener("click", () => {
+      filtroAtual = botao.dataset.filtro;
+
+      botoes.forEach(item => {
+        item.classList.toggle("ativo", item === botao);
+      });
+
+      mostrarListaAdmin();
+    });
+  });
+}
+
+function mostrarListaAdmin() {
   const lista = document.getElementById("lista-admin");
   lista.innerHTML = "";
 
-  produtos.forEach(item => {
+  const produtosFiltrados = filtroAtual === "todos"
+    ? produtosAdmin
+    : produtosAdmin.filter(item => item.status === filtroAtual);
+
+  if (produtosFiltrados.length === 0) {
+    lista.textContent = "Nenhum presente encontrado nesta categoria. ♡";
+    return;
+  }
+
+  produtosFiltrados.forEach(item => {
     const card = document.createElement("article");
     card.className = "produto";
 
@@ -97,3 +122,4 @@ document
   });
 
 iniciarPainel();
+                     
