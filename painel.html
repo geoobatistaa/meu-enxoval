@@ -49,11 +49,28 @@
         </div>
       </section>
 
-      <section id="gerenciar-presentes">
-        <h2>Organizar presentes</h2>
+      <<section id="gerenciar-presentes">
+  <h2>Organizar presentes</h2>
 
-        <button class="botao" id="adicionar-presente">
-          + Adicionar presente
+  <div id="filtros-admin">
+    <button class="filtro-admin ativo" data-filtro="todos">
+      Todos
+    </button>
+
+    <button class="filtro-admin" data-filtro="available">
+      Preciso comprar
+    </button>
+
+    <button class="filtro-admin" data-filtro="purchased">
+      Já comprei
+    </button>
+
+    <button class="filtro-admin" data-filtro="reserved">
+      Reservados
+    </button>
+  </div>
+
+  <button class="botao" id="adicionar-presente">
         </button>
 
         <div id="lista-admin"></div>
