@@ -21,6 +21,75 @@ const botaoConsultar = document.getElementById("botao-consultar-reserva");
 const resultadoReserva = document.getElementById("resultado-reserva");
 
 
+// CONFIRMAÇÃO PERSONALIZADA
+function pedirConfirmacao(titulo, mensagem, textoBotao) {
+  return new Promise(resolve => {
+    const modal = document.createElement("div");
+    modal.className = "modal-reserva";
+
+    const conteudo = document.createElement("div");
+    conteudo.className = "modal-conteudo modal-confirmacao";
+
+    const fechar = document.createElement("button");
+    fechar.type = "button";
+    fechar.className = "modal-fechar";
+    fechar.setAttribute("aria-label", "Fechar");
+    fechar.textContent = "×";
+
+    const icone = document.createElement("span");
+    icone.className = "modal-icone";
+    icone.textContent = "♡";
+
+    const tituloElemento = document.createElement("h2");
+    tituloElemento.textContent = titulo;
+
+    const mensagemElemento = document.createElement("p");
+    mensagemElemento.className = "modal-mensagem";
+    mensagemElemento.textContent = mensagem;
+
+    const botoes = document.createElement("div");
+    botoes.className = "modal-acoes";
+
+    const confirmar = document.createElement("button");
+    confirmar.type = "button";
+    confirmar.className = "modal-copiar";
+    confirmar.textContent = textoBotao;
+
+    const voltar = document.createElement("button");
+    voltar.type = "button";
+    voltar.className = "modal-voltar";
+    voltar.textContent = "Voltar";
+
+    botoes.appendChild(confirmar);
+    botoes.appendChild(voltar);
+
+    conteudo.appendChild(fechar);
+    conteudo.appendChild(icone);
+    conteudo.appendChild(tituloElemento);
+    conteudo.appendChild(mensagemElemento);
+    conteudo.appendChild(botoes);
+
+    modal.appendChild(conteudo);
+    document.body.appendChild(modal);
+
+    function finalizar(resposta) {
+      modal.remove();
+      resolve(resposta);
+    }
+
+    confirmar.addEventListener("click", () => finalizar(true));
+    voltar.addEventListener("click", () => finalizar(false));
+    fechar.addEventListener("click", () => finalizar(false));
+
+    modal.addEventListener("click", event => {
+      if (event.target === modal) {
+        finalizar(false);
+      }
+    });
+  });
+}
+
+
 // MOSTRAR CATEGORIAS
 function mostrarCategorias() {
   areaCategorias.innerHTML = "";
@@ -123,8 +192,10 @@ function mostrarPresentes() {
     botao.textContent = "Quero presentear";
 
     botao.addEventListener("click", async () => {
-      const confirmar = window.confirm(
-        `Deseja mesmo reservar "${item.name}"?`
+      const confirmar = await pedirConfirmacao(
+        "Um presente especial ♡",
+        `Você deseja reservar "${item.name}" para os noivos?`,
+        "Sim, quero presentear ♡"
       );
 
       if (!confirmar) return;
@@ -141,7 +212,9 @@ function mostrarPresentes() {
         if (error) throw error;
 
         if (!data) {
-          alert("Não recebemos o código da reserva. Entre em contato com os noivos.");
+          alert(
+            "Não recebemos o código da reserva. Entre em contato com os noivos."
+          );
           return;
         }
 
@@ -211,22 +284,17 @@ function abrirComprovante(codigoReserva) {
   const botaoFechar = conteudo.querySelector(".modal-fechar");
   const botaoCopiar = conteudo.querySelector(".modal-copiar");
 
-  function fecharModal() {
-    modal.remove();
-  }
-
-  botaoFechar.addEventListener("click", fecharModal);
+  botaoFechar.addEventListener("click", () => modal.remove());
 
   modal.addEventListener("click", event => {
     if (event.target === modal) {
-      fecharModal();
+      modal.remove();
     }
   });
 
   botaoCopiar.addEventListener("click", async () => {
     try {
       await navigator.clipboard.writeText(codigoReserva);
-
       botaoCopiar.textContent = "Código copiado! ♡";
 
     } catch (error) {
@@ -373,8 +441,10 @@ function mostrarResultadoReserva(reserva) {
     botaoCancelar.className = "botao";
 
     botaoCancelar.addEventListener("click", async () => {
-      const confirmar = window.confirm(
-        "Tem certeza de que deseja cancelar essa reserva?"
+      const confirmar = await pedirConfirmacao(
+        "Podemos confirmar? ♡",
+        "Tem certeza de que deseja cancelar sua reserva? O presente voltará a ficar disponível na lista.",
+        "Sim, cancelar reserva"
       );
 
       if (!confirmar) return;
@@ -422,3 +492,4 @@ function mostrarResultadoReserva(reserva) {
 // INICIAR SITE
 mostrarCategorias();
 carregarPresentes();
+  
