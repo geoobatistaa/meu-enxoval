@@ -1,528 +1,735 @@
 
-let produtosAdmin = [];
-let filtroAtual = "todos";
-let produtoEmEdicao = null;
-
-
-// CONFIRMAÇÃO PERSONALIZADA
-function pedirConfirmacao(titulo, mensagem, textoBotao) {
-  return new Promise(resolve => {
-    const modal = document.createElement("div");
-    modal.className = "modal-reserva";
-
-    const conteudo = document.createElement("div");
-    conteudo.className = "modal-conteudo modal-confirmacao";
-
-    conteudo.innerHTML = `
-      <button type="button" class="modal-fechar" aria-label="Fechar">×</button>
-      <span class="modal-icone">♡</span>
-      <h2></h2>
-      <p class="modal-mensagem"></p>
-      <div class="modal-acoes">
-        <button type="button" class="modal-copiar"></button>
-        <button type="button" class="modal-voltar">Voltar</button>
-      </div>
-    `;
-
-    conteudo.querySelector("h2").textContent = titulo;
-    conteudo.querySelector(".modal-mensagem").textContent = mensagem;
-    conteudo.querySelector(".modal-copiar").textContent = textoBotao;
-
-    modal.appendChild(conteudo);
-    document.body.appendChild(modal);
-
-    function finalizar(resposta) {
-      modal.remove();
-      resolve(resposta);
-    }
-
-    conteudo.querySelector(".modal-copiar")
-      .addEventListener("click", () => finalizar(true));
-
-    conteudo.querySelector(".modal-voltar")
-      .addEventListener("click", () => finalizar(false));
-
-    conteudo.querySelector(".modal-fechar")
-      .addEventListener("click", () => finalizar(false));
-
-    modal.addEventListener("click", event => {
-      if (event.target === modal) finalizar(false);
-    });
-  });
+:root {
+  --lilas: #80618C;
+  --lavanda: #B99AC3;
+  --creme: #F8F1F0;
+  --rosa-lilas: #E9DCEB;
+  --texto: #756C70;
+  --branco: #FFFFFF;
 }
 
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-// INICIAR PAINEL E VERIFICAR ACESSO
-async function iniciarPainel() {
-  const { data: sessaoData, error: erroSessao } =
-    await supabaseClient.auth.getSession();
+body {
+  background: var(--creme);
+  color: var(--texto);
+  font-family: Georgia, serif;
+  line-height: 1.6;
+}
 
-  const usuario = sessaoData?.session?.user;
+#app,
+#painel-admin {
+  width: 100%;
+  min-height: 100vh;
+}
 
-  if (erroSessao || !usuario) {
-    window.location.href = "admin.html";
-    return;
+.cabecalho {
+  text-align: center;
+  padding: 55px 20px 35px;
+}
+
+.cabecalho h1 {
+  color: var(--lilas);
+  font-size: clamp(2.5rem, 7vw, 4rem);
+  font-weight: normal;
+  font-style: italic;
+}
+
+.cabecalho p {
+  color: var(--lavanda);
+  font-family: Arial, sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 5px;
+}
+
+main {
+  width: min(1100px, 92%);
+  margin: auto;
+}
+
+.boas-vindas {
+  max-width: 720px;
+  margin: 15px auto 45px;
+  padding: 30px;
+  background: var(--branco);
+  border-radius: 18px;
+  text-align: center;
+}
+
+.boas-vindas h2 {
+  color: var(--lilas);
+  font-size: 1.5rem;
+  font-weight: normal;
+  margin-bottom: 12px;
+}
+
+.boas-vindas p {
+  font-size: 0.95rem;
+}
+
+#categorias,
+#presentes {
+  margin-bottom: 45px;
+}
+
+#categorias {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+.categoria {
+  background: var(--branco);
+  color: var(--lilas);
+  padding: 20px 10px;
+  border: 1px solid var(--rosa-lilas);
+  border-radius: 16px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.categoria.ativa {
+  background: var(--lilas);
+  color: var(--branco);
+}
+
+.categoria .icone {
+  display: block;
+  font-size: 1.7rem;
+  margin-bottom: 5px;
+}
+
+#presentes {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.produto {
+  background: var(--branco);
+  border-radius: 18px;
+  padding: 12px;
+  overflow: hidden;
+}
+
+.produto img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.produto h3 {
+  color: var(--lilas);
+  font-size: 1.1rem;
+  margin: 10px 0 5px;
+}
+
+.produto p {
+  font-size: 0.85rem;
+}
+
+.botao {
+  display: block;
+  width: 100%;
+  border: none;
+  border-radius: 30px;
+  background: var(--lilas);
+  color: var(--branco);
+  padding: 12px;
+  margin-top: 12px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.botao:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+footer {
+  background: var(--rosa-lilas);
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--lilas);
+}
+
+footer h2 {
+  font-size: 1.8rem;
+  font-style: italic;
+  font-weight: normal;
+  margin: 8px 0;
+}
+
+footer small {
+  display: block;
+  margin-top: 12px;
+}
+
+/* FILTROS DO PAINEL */
+
+#filtros-admin {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.filtro-admin {
+  border: 1px solid var(--lavanda);
+  border-radius: 30px;
+  padding: 10px 16px;
+  background: var(--branco);
+  color: var(--lilas);
+  font-family: Arial, sans-serif;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.filtro-admin.ativo {
+  background: var(--lilas);
+  color: var(--branco);
+  border-color: var(--lilas);
+}
+
+.filtro-admin:active {
+  transform: scale(0.97);
+}
+
+/* RESUMO ADMINISTRATIVO */
+
+#resumo {
+  margin: 35px 0 40px;
+}
+
+#resumo > h2 {
+  color: var(--texto);
+  font-size: 1.8rem;
+  margin-bottom: 16px;
+}
+
+.resumo-cartoes {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.resumo-cartoes .produto {
+  position: relative;
+  min-width: 0;
+  padding: 22px 16px;
+  border: 1px solid var(--rosa-lilas);
+  border-radius: 20px;
+  box-shadow: 0 4px 16px rgba(128, 97, 140, 0.06);
+}
+
+.resumo-cartoes .produto::before {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--lavanda);
+  font-size: 1.5rem;
+}
+
+.resumo-cartoes .produto:nth-child(1)::before {
+  content: "♡";
+}
+
+.resumo-cartoes .produto:nth-child(2)::before {
+  content: "✧";
+}
+
+.resumo-cartoes .produto:nth-child(3)::before {
+  content: "♧";
+}
+
+.resumo-cartoes .produto:nth-child(4)::before {
+  content: "✓";
+}
+
+.resumo-cartoes .produto h3 {
+  color: var(--lilas);
+  font-size: 2rem;
+  margin: 0 0 3px;
+}
+
+.resumo-cartoes .produto p {
+  font-family: Arial, sans-serif;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+/* CARDS DOS PRESENTES NO PAINEL */
+
+#lista-admin {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  margin: 22px 0 45px;
+}
+
+#lista-admin .produto {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 13px;
+  background: var(--branco);
+  border: 1px solid var(--rosa-lilas);
+  border-radius: 22px;
+  box-shadow: 0 5px 18px rgba(128, 97, 140, 0.06);
+}
+
+#lista-admin .produto img {
+  width: 100%;
+  aspect-ratio: 5 / 4;
+  object-fit: cover;
+  border-radius: 15px;
+  margin-bottom: 8px;
+}
+
+#lista-admin .produto h3 {
+  color: var(--lilas);
+  font-size: 1.2rem;
+  line-height: 1.4;
+  margin: 10px 0 5px;
+}
+
+#lista-admin .produto p {
+  font-family: Arial, sans-serif;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  margin: 3px 0;
+}
+
+/* ETIQUETAS DE STATUS */
+
+#lista-admin .produto p.status-produto {
+  display: inline-block;
+  align-self: flex-start;
+  width: fit-content;
+  margin: 10px 0 12px;
+  padding: 6px 14px;
+  border-radius: 30px;
+  font-family: Arial, sans-serif;
+  font-size: 0.78rem;
+  font-weight: bold;
+}
+
+/* DISPONÍVEL */
+
+#lista-admin .produto p.status-available {
+  background: #F2EAF3;
+  color: #80618C;
+  border: 1px solid #E9DCEB;
+}
+
+/* RESERVADO */
+
+#lista-admin .produto p.status-reserved {
+  background: #E9DCEB;
+  color: #80618C;
+  border: 1px solid #D8C6DC;
+}
+
+/* COMPRADO */
+
+#lista-admin .produto p.status-purchased {
+  background: #E8F0E8;
+  color: #58765D;
+  border: 1px solid #D4E3D4;
+}
+
+/* OCULTO */
+
+#lista-admin .produto p.status-hidden {
+  background: #F0EEEE;
+  color: #756C70;
+  border: 1px solid #E0DADD;
+}
+
+/* BOTÕES DOS CARDS */
+
+#lista-admin .produto .botao {
+  margin-top: 9px;
+  padding: 12px 14px;
+  font-family: Georgia, serif;
+  font-size: 0.88rem;
+  transition: 0.2s ease;
+}
+
+#lista-admin .produto .botao:last-of-type {
+  background: #F8F1F0;
+  color: #9B858F;
+  border: 1px solid #E9DCEB;
+}
+
+#lista-admin .produto .botao:active {
+  transform: scale(0.98);
+}
+
+/* FORMULÁRIOS DE PRESENTES */
+
+#form-produto,
+#form-editar-produto {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#form-produto label,
+#form-editar-produto label {
+  display: block;
+  margin-top: 8px;
+}
+
+#form-produto input,
+#form-produto select,
+#form-produto textarea,
+#form-editar-produto input,
+#form-editar-produto select,
+#form-editar-produto textarea {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #D8C6DC;
+  border-radius: 10px;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  background: var(--branco);
+  color: var(--texto);
+}
+
+#form-produto button,
+#form-editar-produto button {
+  width: 100%;
+  margin-top: 8px;
+}
+
+/* MODAIS DE RESERVA E CONFIRMAÇÃO */
+
+.modal-reserva {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(65, 48, 68, 0.55);
+  backdrop-filter: blur(4px);
+}
+
+.modal-conteudo {
+  position: relative;
+  width: 100%;
+  max-width: 430px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 38px 28px;
+  background: var(--branco);
+  border: 1px solid var(--rosa-lilas);
+  border-radius: 24px;
+  text-align: center;
+  box-shadow: 0 18px 55px rgba(65, 48, 68, 0.2);
+  animation: aparecerModal 0.3s ease;
+}
+
+@keyframes aparecerModal {
+  from {
+    opacity: 0;
+    transform: translateY(15px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-fechar {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+  background: var(--creme);
+  color: var(--lilas);
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+
+.modal-icone {
+  display: block;
+  margin-bottom: 12px;
+  color: var(--lavanda);
+  font-size: 2.5rem;
+}
+
+.modal-conteudo h2 {
+  margin-bottom: 12px;
+  color: var(--lilas);
+  font-size: 1.6rem;
+  font-weight: normal;
+}
+
+.modal-mensagem {
+  margin-bottom: 22px;
+  font-size: 0.95rem;
+}
+
+.modal-codigo-area {
+  margin: 20px 0;
+  padding: 18px 12px;
+  background: var(--creme);
+  border: 1px dashed var(--lavanda);
+  border-radius: 16px;
+}
+
+.modal-codigo-area small {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--texto);
+  font-family: Arial, sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.modal-codigo {
+  color: var(--lilas);
+  font-family: Arial, sans-serif;
+  font-size: clamp(1.1rem, 5vw, 1.5rem);
+  font-weight: bold;
+  letter-spacing: 1px;
+  overflow-wrap: anywhere;
+}
+
+.modal-copiar {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px;
+  border: none;
+  border-radius: 30px;
+  background: var(--lilas);
+  color: var(--branco);
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.modal-copiar:hover {
+  background: #6D5079;
+}
+
+.modal-instrucao {
+  margin: 18px 0;
+  font-size: 0.85rem;
+}
+
+.modal-rodape {
+  margin-top: 20px;
+  color: var(--lavanda);
+  font-style: italic;
+  font-size: 0.95rem;
+}
+
+/* CONFIRMAÇÕES PERSONALIZADAS */
+
+.modal-confirmacao {
+  padding-top: 42px;
+}
+
+.modal-acoes {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.modal-acoes .modal-copiar {
+  margin-top: 0;
+  padding: 14px;
+  font-family: Georgia, serif;
+}
+
+.modal-voltar {
+  width: 100%;
+  padding: 13px;
+  border: 1px solid #D8C6DC;
+  border-radius: 30px;
+  background: var(--branco);
+  color: var(--lilas);
+  font-family: Georgia, serif;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.modal-voltar:hover {
+  background: var(--creme);
+}
+
+/* MINHA RESERVA */
+
+#minha-reserva {
+  max-width: 720px;
+  margin: 35px auto 45px;
+  padding: 28px;
+  background: var(--branco);
+  border: 1px solid var(--rosa-lilas);
+  border-radius: 22px;
+  text-align: center;
+  box-shadow: 0 5px 20px rgba(128, 97, 140, 0.06);
+}
+
+#minha-reserva h2 {
+  color: var(--lilas);
+  font-size: 1.8rem;
+  font-weight: normal;
+  margin-bottom: 8px;
+}
+
+#minha-reserva > p {
+  max-width: 520px;
+  margin: 0 auto 20px;
+  font-size: 0.9rem;
+  color: var(--texto);
+}
+
+#consulta-reserva {
+  max-width: 440px;
+  margin: auto;
+  padding: 18px;
+  background: var(--creme);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+#codigo-reserva {
+  width: 100%;
+  min-width: 0;
+  padding: 13px 15px;
+  border: 1px solid #D8C6DC;
+  border-radius: 10px;
+  background: var(--branco);
+  color: var(--texto);
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  outline: none;
+}
+
+#codigo-reserva:focus {
+  border-color: var(--lilas);
+  box-shadow: 0 0 0 3px rgba(128, 97, 140, 0.10);
+}
+
+#botao-consultar-reserva {
+  width: 100%;
+  padding: 13px;
+  border: none;
+  border-radius: 30px;
+  background: var(--lilas);
+  color: var(--branco);
+  font-family: Georgia, serif;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+#botao-consultar-reserva:disabled {
+  opacity: 0.6;
+}
+
+#resultado-reserva:not(:empty) {
+  max-width: 440px;
+  margin: 18px auto 0;
+  padding: 16px;
+  background: var(--creme);
+  border: 1px solid var(--rosa-lilas);
+  border-radius: 16px;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.resultado-consulta h3 {
+  color: var(--lilas);
+  font-size: 1.3rem;
+  font-weight: normal;
+  margin-bottom: 12px;
+}
+
+.resultado-consulta p {
+  margin: 7px 0;
+  font-size: 0.9rem;
+}
+
+/* RESPONSIVIDADE */
+
+@media (max-width: 650px) {
+  #categorias {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 9px;
   }
 
-  const { data: administradora, error: erroPermissao } =
-    await supabaseClient
-      .from("site_admins")
-      .select("user_id")
-      .eq("user_id", usuario.id)
-      .maybeSingle();
-
-  if (erroPermissao || !administradora) {
-    await supabaseClient.auth.signOut();
-    window.location.href = "admin.html";
-    return;
+  #presentes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
   }
 
-  configurarFiltros();
-  configurarFormulario();
-  configurarEdicao();
-
-  await carregarResumo();
-}
-
-
-// CARREGAR RESUMO
-async function carregarResumo() {
-  const { data, error } = await supabaseClient
-    .rpc("get_admin_products");
-
-  if (error) {
-    console.error("Erro ao carregar produtos:", error);
-    alert("Não foi possível carregar os produtos.");
-    return;
+  .boas-vindas {
+    padding: 22px;
   }
 
-  produtosAdmin = data || [];
-
-  document.getElementById("total-produtos").textContent =
-    produtosAdmin.length;
-
-  document.getElementById("total-disponiveis").textContent =
-    produtosAdmin.filter(item => item.status === "available").length;
-
-  document.getElementById("total-reservados").textContent =
-    produtosAdmin.filter(item => item.status === "reserved").length;
-
-  document.getElementById("total-comprados").textContent =
-    produtosAdmin.filter(item => item.status === "purchased").length;
-
-  mostrarListaAdmin();
-}
-
-
-// FILTROS
-function configurarFiltros() {
-  const botoes = document.querySelectorAll(".filtro-admin");
-
-  botoes.forEach(botao => {
-    botao.addEventListener("click", () => {
-      filtroAtual = botao.dataset.filtro;
-
-      botoes.forEach(item => {
-        item.classList.toggle("ativo", item === botao);
-      });
-
-      mostrarListaAdmin();
-    });
-  });
-}
-
-
-// MOSTRAR CARTÕES
-function mostrarListaAdmin() {
-  const lista = document.getElementById("lista-admin");
-  lista.innerHTML = "";
-
-  const produtosFiltrados = filtroAtual === "todos"
-    ? produtosAdmin
-    : produtosAdmin.filter(item => item.status === filtroAtual);
-
-  if (produtosFiltrados.length === 0) {
-    lista.textContent = "Nenhum presente encontrado nesta categoria. ♡";
-    return;
+  .resumo-cartoes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
   }
 
-  produtosFiltrados.forEach(item => {
-    const card = document.createElement("article");
-    card.className = "produto";
+  .resumo-cartoes .produto {
+    padding: 18px 15px;
+  }
 
-    const imagem = document.createElement("img");
-    imagem.src = item.image_url || "";
-    imagem.alt = item.name;
-    imagem.loading = "lazy";
+  #resumo > h2 {
+    font-size: 1.6rem;
+  }
 
-    if (!item.image_url) {
-      imagem.style.display = "none";
-    }
+  #lista-admin {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
 
-    card.appendChild(imagem);
+  #lista-admin .produto {
+    padding: 15px;
+    border-radius: 21px;
+  }
 
-    const nome = document.createElement("h3");
-    nome.textContent = item.name;
-    card.appendChild(nome);
+  #lista-admin .produto h3 {
+    font-size: 1.25rem;
+  }
 
-    const categoria = document.createElement("p");
-    categoria.textContent = item.category;
-    card.appendChild(categoria);
+  #minha-reserva {
+    padding: 22px 16px;
+    margin: 30px auto 38px;
+  }
 
-    if (item.description) {
-      const descricao = document.createElement("p");
-      descricao.textContent = item.description;
-      card.appendChild(descricao);
-    }
-
-    const nomesStatus = {
-      available: "Preciso comprar",
-      reserved: "Reservado",
-      purchased: "Já comprei",
-      hidden: "Oculto"
-    };
-
-    // ETIQUETA DE STATUS
-    const status = document.createElement("p");
-    status.className = `status-produto status-${item.status}`;
-    status.textContent = nomesStatus[item.status] || item.status;
-    card.appendChild(status);
-
-    // MARCAR COMO COMPRADO
-    if (item.status === "available" || item.status === "reserved") {
-      const botaoComprado = document.createElement("button");
-      botaoComprado.type = "button";
-      botaoComprado.className = "botao";
-      botaoComprado.textContent = "Marcar como comprado";
-      botaoComprado.style.background = "#80618C";
-
-      botaoComprado.addEventListener("click", () => {
-        marcarComoComprado(item, botaoComprado);
-      });
-
-      card.appendChild(botaoComprado);
-    }
-
-    // BOTÃO EDITAR
-    const botaoEditar = document.createElement("button");
-    botaoEditar.type = "button";
-    botaoEditar.className = "botao";
-    botaoEditar.textContent = "Editar";
-
-    botaoEditar.addEventListener("click", () => {
-      abrirEdicao(item);
-    });
-
-    card.appendChild(botaoEditar);
-
-    // BOTÃO EXCLUIR
-    const botaoExcluir = document.createElement("button");
-    botaoExcluir.type = "button";
-    botaoExcluir.className = "botao";
-    botaoExcluir.textContent = "Excluir";
-
-    botaoExcluir.addEventListener("click", () => {
-      excluirPresente(item);
-    });
-
-    card.appendChild(botaoExcluir);
-
-    lista.appendChild(card);
-  });
-}
-
-
-// MARCAR PRESENTE COMO COMPRADO
-async function marcarComoComprado(item, botao) {
-  const confirmar = await pedirConfirmacao(
-    "Presente comprado! ♡",
-    `Você confirma que já comprou "${item.name}"? Ele será movido para a categoria "Já comprei".`,
-    "Sim, já comprei ♡"
-  );
-
-  if (!confirmar) return;
-
-  botao.disabled = true;
-  botao.textContent = "Atualizando...";
-
-  try {
-    const { error } = await supabaseClient
-      .from("products")
-      .update({ status: "purchased" })
-      .eq("id", item.id);
-
-    if (error) throw error;
-
-    await carregarResumo();
-
-  } catch (erro) {
-    console.error("Erro ao atualizar presente:", erro);
-
-    alert(
-      "Não foi possível marcar como comprado: " + erro.message
-    );
-
-    botao.disabled = false;
-    botao.textContent = "Marcar como comprado";
+  #minha-reserva h2 {
+    font-size: 1.6rem;
   }
 }
 
-
-// EXCLUIR PRESENTE
-async function excluirPresente(item) {
-  const confirmar = confirm(
-    `Tem certeza que deseja excluir "${item.name}"?`
-  );
-
-  if (!confirmar) return;
-
-  const { error } = await supabaseClient
-    .from("products")
-    .delete()
-    .eq("id", item.id);
-
-  if (error) {
-    console.error("Erro ao excluir:", error);
-    alert("Não foi possível excluir: " + error.message);
-    return;
+@media (min-width: 651px) {
+  #categorias {
+    grid-template-columns: repeat(4, 1fr);
   }
-
-  alert("Presente excluído com sucesso! ♡");
-  await carregarResumo();
 }
 
-
-// ELEMENTOS DO FORMULÁRIO DE CADASTRO
-const botaoAdicionar = document.getElementById("adicionar-presente");
-const formularioProduto = document.getElementById("form-produto");
-const botaoCancelar = document.getElementById("cancelar-produto");
-
-
-// ABRIR CADASTRO
-botaoAdicionar.addEventListener("click", () => {
-  formularioProduto.style.display = "block";
-
-  document.getElementById("form-editar-produto").style.display = "none";
-
-  formularioProduto.scrollIntoView({ behavior: "smooth" });
-});
-
-
-// CANCELAR CADASTRO
-botaoCancelar.addEventListener("click", () => {
-  formularioProduto.style.display = "none";
-  formularioProduto.reset();
-  document.getElementById("mensagem-produto").textContent = "";
-});
-
-
-// CADASTRAR PRESENTE
-function configurarFormulario() {
-  formularioProduto.addEventListener("submit", async (evento) => {
-    evento.preventDefault();
-
-    const nome = document.getElementById("nome-produto").value.trim();
-    const categoria = document.getElementById("categoria-produto").value;
-    const descricao = document.getElementById("descricao-produto").value.trim();
-    const arquivo = document.getElementById("imagem-produto").files[0];
-    const mensagem = document.getElementById("mensagem-produto");
-    const botaoSalvar = evento.target.querySelector('button[type="submit"]');
-
-    if (!arquivo) {
-      mensagem.textContent = "Selecione uma foto para o presente.";
-      return;
-    }
-
-    if (arquivo.size > 5 * 1024 * 1024) {
-      mensagem.textContent = "A imagem deve ter no máximo 5 MB.";
-      return;
-    }
-
-    if (!["image/jpeg", "image/png", "image/webp"].includes(arquivo.type)) {
-      mensagem.textContent = "Use uma imagem JPG, PNG ou WEBP.";
-      return;
-    }
-
-    botaoSalvar.disabled = true;
-    botaoSalvar.textContent = "Salvando...";
-    mensagem.textContent = "";
-
-    try {
-      const nomeArquivo = `${crypto.randomUUID()}-${arquivo.name}`;
-
-      const { error: erroUpload } = await supabaseClient
-        .storage
-        .from("product-images")
-        .upload(nomeArquivo, arquivo, {
-          contentType: arquivo.type
-        });
-
-      if (erroUpload) throw erroUpload;
-
-      const { data: imagemPublica } = supabaseClient
-        .storage
-        .from("product-images")
-        .getPublicUrl(nomeArquivo);
-
-      const { error: erroCadastro } = await supabaseClient
-        .from("products")
-        .insert({
-          name: nome,
-          category: categoria,
-          description: descricao || null,
-          image_url: imagemPublica.publicUrl,
-          status: "available",
-          is_published: true
-        });
-
-      if (erroCadastro) throw erroCadastro;
-
-      mensagem.textContent = "Presente cadastrado com sucesso! ♡";
-      evento.target.reset();
-
-      await carregarResumo();
-
-    } catch (erro) {
-      console.error("Erro ao cadastrar presente:", erro);
-      mensagem.textContent = erro.message || "Erro ao cadastrar.";
-    } finally {
-      botaoSalvar.disabled = false;
-      botaoSalvar.textContent = "Salvar presente";
-    }
-  });
-}
-
-
-// ABRIR FORMULÁRIO DE EDIÇÃO
-function abrirEdicao(item) {
-  produtoEmEdicao = item;
-
-  formularioProduto.style.display = "none";
-
-  const formularioEdicao =
-    document.getElementById("form-editar-produto");
-
-  formularioEdicao.style.display = "block";
-
-  document.getElementById("editar-nome").value = item.name;
-  document.getElementById("editar-categoria").value = item.category;
-  document.getElementById("editar-descricao").value =
-    item.description || "";
-
-  document.getElementById("editar-imagem").value = "";
-  document.getElementById("mensagem-edicao").textContent = "";
-
-  formularioEdicao.scrollIntoView({ behavior: "smooth" });
-}
-
-
-// CONFIGURAR EDIÇÃO
-function configurarEdicao() {
-  const formularioEdicao =
-    document.getElementById("form-editar-produto");
-
-  const botaoCancelarEdicao =
-    document.getElementById("cancelar-edicao");
-
-  botaoCancelarEdicao.addEventListener("click", () => {
-    formularioEdicao.style.display = "none";
-    formularioEdicao.reset();
-    produtoEmEdicao = null;
-
-    document.getElementById("mensagem-edicao").textContent = "";
-  });
-
-  formularioEdicao.addEventListener("submit", async (evento) => {
-    evento.preventDefault();
-
-    if (!produtoEmEdicao) return;
-
-    const nome = document.getElementById("editar-nome").value.trim();
-    const categoria = document.getElementById("editar-categoria").value;
-    const descricao = document.getElementById("editar-descricao").value.trim();
-    const arquivo = document.getElementById("editar-imagem").files[0];
-
-    const mensagem = document.getElementById("mensagem-edicao");
-    const botaoSalvar = evento.target.querySelector('button[type="submit"]');
-
-    if (!nome) {
-      mensagem.textContent = "O nome não pode ficar vazio.";
-      return;
-    }
-
-    if (arquivo && arquivo.size > 5 * 1024 * 1024) {
-      mensagem.textContent = "A imagem deve ter no máximo 5 MB.";
-      return;
-    }
-
-    if (
-      arquivo &&
-      !["image/jpeg", "image/png", "image/webp"].includes(arquivo.type)
-    ) {
-      mensagem.textContent = "Use uma imagem JPG, PNG ou WEBP.";
-      return;
-    }
-
-    botaoSalvar.disabled = true;
-    botaoSalvar.textContent = "Salvando...";
-    mensagem.textContent = "";
-
-    try {
-      let imagemUrl = produtoEmEdicao.image_url;
-
-      if (arquivo) {
-        const nomeArquivo =
-          `${crypto.randomUUID()}-${arquivo.name}`;
-
-        const { error: erroUpload } = await supabaseClient
-          .storage
-          .from("product-images")
-          .upload(nomeArquivo, arquivo, {
-            contentType: arquivo.type
-          });
-
-        if (erroUpload) throw erroUpload;
-
-        const { data: imagemPublica } = supabaseClient
-          .storage
-          .from("product-images")
-          .getPublicUrl(nomeArquivo);
-
-        imagemUrl = imagemPublica.publicUrl;
-      }
-
-      const { error: erroAtualizacao } = await supabaseClient
-        .from("products")
-        .update({
-          name: nome,
-          category: categoria,
-          description: descricao || null,
-          image_url: imagemUrl
-        })
-        .eq("id", produtoEmEdicao.id);
-
-      if (erroAtualizacao) throw erroAtualizacao;
-
-      mensagem.textContent = "Presente atualizado com sucesso! ♡";
-
-      produtoEmEdicao = null;
-
-      await carregarResumo();
-
-      formularioEdicao.reset();
-      formularioEdicao.style.display = "none";
-
-    } catch (erro) {
-      console.error("Erro ao editar presente:", erro);
-      mensagem.textContent = erro.message || "Não foi possível atualizar.";
-    } finally {
-      botaoSalvar.disabled = false;
-      botaoSalvar.textContent = "Salvar alterações";
-    }
-  });
-}
-
-
-// INICIAR
-iniciarPainel();
-      
+@media (min-width: 651px) and (max-width: 950px) {
+  #lista-admin {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  }
