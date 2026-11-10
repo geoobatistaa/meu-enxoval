@@ -193,9 +193,10 @@ document.getElementById("form-produto").addEventListener("submit", async (evento
 
     await carregarResumo();
 
-  } catch (erro) {
-    console.error("Erro ao cadastrar presente:", erro);
-    mensagem.textContent = "Não foi possível cadastrar. Tente novamente.";
+  } } catch (erro) {
+  console.error("Erro ao cadastrar presente:", erro);
+  mensagem.textContent = erro.message || "Erro ao cadastrar.";
+}
   } finally {
     botaoSalvar.disabled = false;
     botaoSalvar.textContent = "Salvar presente";
