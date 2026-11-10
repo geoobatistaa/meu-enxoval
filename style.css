@@ -380,3 +380,37 @@ footer small {
   font-style: italic;
   font-size: 0.95rem;
 }
+
+/* Botões das confirmações personalizadas */
+.modal-confirmacao {
+  padding-top: 42px;
+}
+
+.modal-acoes {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.modal-acoes .modal-copiar {
+  margin-top: 0;
+  padding: 14px;
+  font-family: Georgia, serif;
+}
+
+.modal-voltar {
+  width: 100%;
+  padding: 13px;
+  border: 1px solid #D8C6DC;
+  border-radius: 30px;
+  background: #FFFFFF;
+  color: #80618C;
+  font-family: Georgia, serif;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.modal-voltar:hover {
+  background: #F8F1F0;
+}
