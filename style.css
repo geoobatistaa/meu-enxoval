@@ -145,6 +145,11 @@ main {
   cursor: pointer;
 }
 
+.botao:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
 footer {
   background: var(--rosa-lilas);
   padding: 40px 20px;
@@ -184,7 +189,7 @@ footer small {
   #categorias {
     grid-template-columns: repeat(4, 1fr);
   }
-  }
+}
 
 /* Filtros do painel administrativo */
 #filtros-admin {
@@ -215,7 +220,8 @@ footer small {
 .filtro-admin:active {
   transform: scale(0.97);
 }
-/* Organização do formulário de presentes */
+
+/* Formulário de presentes */
 #form-produto {
   display: flex;
   flex-direction: column;
@@ -245,4 +251,132 @@ footer small {
 #form-produto button {
   width: 100%;
   margin-top: 8px;
+}
+
+/* Comprovante de reserva */
+.modal-reserva {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(65, 48, 68, 0.55);
+  backdrop-filter: blur(4px);
+}
+
+.modal-conteudo {
+  position: relative;
+  width: 100%;
+  max-width: 430px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 38px 28px;
+  background: var(--branco);
+  border: 1px solid var(--rosa-lilas);
+  border-radius: 24px;
+  text-align: center;
+  box-shadow: 0 18px 55px rgba(65, 48, 68, 0.2);
+  animation: aparecerModal 0.3s ease;
+}
+
+@keyframes aparecerModal {
+  from {
+    opacity: 0;
+    transform: translateY(15px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-fechar {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+  background: var(--creme);
+  color: var(--lilas);
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+
+.modal-icone {
+  display: block;
+  margin-bottom: 12px;
+  color: var(--lavanda);
+  font-size: 2.5rem;
+}
+
+.modal-conteudo h2 {
+  margin-bottom: 12px;
+  color: var(--lilas);
+  font-size: 1.6rem;
+  font-weight: normal;
+}
+
+.modal-mensagem {
+  margin-bottom: 22px;
+  font-size: 0.95rem;
+}
+
+.modal-codigo-area {
+  margin: 20px 0;
+  padding: 18px 12px;
+  background: var(--creme);
+  border: 1px dashed var(--lavanda);
+  border-radius: 16px;
+}
+
+.modal-codigo-area small {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--texto);
+  font-family: Arial, sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.modal-codigo {
+  color: var(--lilas);
+  font-family: Arial, sans-serif;
+  font-size: clamp(1.1rem, 5vw, 1.5rem);
+  font-weight: bold;
+  letter-spacing: 1px;
+  overflow-wrap: anywhere;
+}
+
+.modal-copiar {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px;
+  border: none;
+  border-radius: 30px;
+  background: var(--lilas);
+  color: var(--branco);
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.modal-copiar:hover {
+  background: #6D5079;
+}
+
+.modal-instrucao {
+  margin: 18px 0;
+  font-size: 0.85rem;
+}
+
+.modal-rodape {
+  margin-top: 20px;
+  color: var(--lavanda);
+  font-style: italic;
+  font-size: 0.95rem;
 }
