@@ -519,3 +519,79 @@ footer small {
     font-size: 1.6rem;
   }
 }
+/* Novo visual do resumo administrativo */
+#resumo {
+  margin: 35px 0 40px;
+}
+
+#resumo > h2 {
+  color: var(--texto);
+  font-size: 1.8rem;
+  margin-bottom: 16px;
+}
+
+.resumo-cartoes {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.resumo-cartoes .produto {
+  position: relative;
+  min-width: 0;
+  padding: 22px 16px;
+  border: 1px solid var(--rosa-lilas);
+  border-radius: 20px;
+  box-shadow: 0 4px 16px rgba(128, 97, 140, 0.06);
+  transition: transform 0.2s ease;
+}
+
+.resumo-cartoes .produto::before {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--lavanda);
+  font-size: 1.5rem;
+}
+
+.resumo-cartoes .produto:nth-child(1)::before {
+  content: "♡";
+}
+
+.resumo-cartoes .produto:nth-child(2)::before {
+  content: "✧";
+}
+
+.resumo-cartoes .produto:nth-child(3)::before {
+  content: "♧";
+}
+
+.resumo-cartoes .produto:nth-child(4)::before {
+  content: "✓";
+}
+
+.resumo-cartoes .produto h3 {
+  color: var(--lilas);
+  font-size: 2rem;
+  margin: 0 0 3px;
+}
+
+.resumo-cartoes .produto p {
+  font-family: Arial, sans-serif;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+@media (max-width: 650px) {
+  .resumo-cartoes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .resumo-cartoes .produto {
+    padding: 18px 15px;
+  }
+
+  #resumo > h2 {
+    font-size: 1.6rem;
+  }
+}
