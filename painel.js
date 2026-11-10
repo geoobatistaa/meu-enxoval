@@ -3,6 +3,55 @@ let produtosAdmin = [];
 let filtroAtual = "todos";
 let produtoEmEdicao = null;
 
+
+// CONFIRMAÇÃO PERSONALIZADA
+function pedirConfirmacao(titulo, mensagem, textoBotao) {
+  return new Promise(resolve => {
+    const modal = document.createElement("div");
+    modal.className = "modal-reserva";
+
+    const conteudo = document.createElement("div");
+    conteudo.className = "modal-conteudo modal-confirmacao";
+
+    conteudo.innerHTML = `
+      <button type="button" class="modal-fechar" aria-label="Fechar">×</button>
+      <span class="modal-icone">♡</span>
+      <h2></h2>
+      <p class="modal-mensagem"></p>
+      <div class="modal-acoes">
+        <button type="button" class="modal-copiar"></button>
+        <button type="button" class="modal-voltar">Voltar</button>
+      </div>
+    `;
+
+    conteudo.querySelector("h2").textContent = titulo;
+    conteudo.querySelector(".modal-mensagem").textContent = mensagem;
+    conteudo.querySelector(".modal-copiar").textContent = textoBotao;
+
+    modal.appendChild(conteudo);
+    document.body.appendChild(modal);
+
+    function finalizar(resposta) {
+      modal.remove();
+      resolve(resposta);
+    }
+
+    conteudo.querySelector(".modal-copiar")
+      .addEventListener("click", () => finalizar(true));
+
+    conteudo.querySelector(".modal-voltar")
+      .addEventListener("click", () => finalizar(false));
+
+    conteudo.querySelector(".modal-fechar")
+      .addEventListener("click", () => finalizar(false));
+
+    modal.addEventListener("click", event => {
+      if (event.target === modal) finalizar(false);
+    });
+  });
+}
+
+
 // INICIAR PAINEL E VERIFICAR ACESSO
 async function iniciarPainel() {
   const { data: sessaoData, error: erroSessao } =
@@ -35,6 +84,7 @@ async function iniciarPainel() {
   await carregarResumo();
 }
 
+
 // CARREGAR RESUMO
 async function carregarResumo() {
   const { data, error } = await supabaseClient
@@ -63,6 +113,7 @@ async function carregarResumo() {
   mostrarListaAdmin();
 }
 
+
 // FILTROS
 function configurarFiltros() {
   const botoes = document.querySelectorAll(".filtro-admin");
@@ -79,6 +130,7 @@ function configurarFiltros() {
     });
   });
 }
+
 
 // MOSTRAR CARTÕES
 function mostrarListaAdmin() {
@@ -134,6 +186,21 @@ function mostrarListaAdmin() {
     status.textContent = nomesStatus[item.status] || item.status;
     card.appendChild(status);
 
+    // MARCAR COMO COMPRADO
+    if (item.status === "available" || item.status === "reserved") {
+      const botaoComprado = document.createElement("button");
+      botaoComprado.type = "button";
+      botaoComprado.className = "botao";
+      botaoComprado.textContent = "Marcar como comprado";
+      botaoComprado.style.background = "#80618C";
+
+      botaoComprado.addEventListener("click", () => {
+        marcarComoComprado(item, botaoComprado);
+      });
+
+      card.appendChild(botaoComprado);
+    }
+
     const botaoEditar = document.createElement("button");
     botaoEditar.type = "button";
     botaoEditar.className = "botao";
@@ -161,6 +228,43 @@ function mostrarListaAdmin() {
   });
 }
 
+
+// MARCAR PRESENTE COMO COMPRADO
+async function marcarComoComprado(item, botao) {
+  const confirmar = await pedirConfirmacao(
+    "Presente comprado! ♡",
+    `Você confirma que já comprou "${item.name}"? Ele será movido para a categoria "Já comprei".`,
+    "Sim, já comprei ♡"
+  );
+
+  if (!confirmar) return;
+
+  botao.disabled = true;
+  botao.textContent = "Atualizando...";
+
+  try {
+    const { error } = await supabaseClient
+      .from("products")
+      .update({ status: "purchased" })
+      .eq("id", item.id);
+
+    if (error) throw error;
+
+    await carregarResumo();
+
+  } catch (erro) {
+    console.error("Erro ao atualizar presente:", erro);
+
+    alert(
+      "Não foi possível marcar como comprado: " + erro.message
+    );
+
+    botao.disabled = false;
+    botao.textContent = "Marcar como comprado";
+  }
+}
+
+
 // EXCLUIR PRESENTE
 async function excluirPresente(item) {
   const confirmar = confirm(
@@ -184,10 +288,12 @@ async function excluirPresente(item) {
   await carregarResumo();
 }
 
+
 // ELEMENTOS DO FORMULÁRIO DE CADASTRO
 const botaoAdicionar = document.getElementById("adicionar-presente");
 const formularioProduto = document.getElementById("form-produto");
 const botaoCancelar = document.getElementById("cancelar-produto");
+
 
 // ABRIR CADASTRO
 botaoAdicionar.addEventListener("click", () => {
@@ -198,12 +304,14 @@ botaoAdicionar.addEventListener("click", () => {
   formularioProduto.scrollIntoView({ behavior: "smooth" });
 });
 
+
 // CANCELAR CADASTRO
 botaoCancelar.addEventListener("click", () => {
   formularioProduto.style.display = "none";
   formularioProduto.reset();
   document.getElementById("mensagem-produto").textContent = "";
 });
+
 
 // CADASTRAR PRESENTE
 function configurarFormulario() {
@@ -281,6 +389,7 @@ function configurarFormulario() {
   });
 }
 
+
 // ABRIR FORMULÁRIO DE EDIÇÃO
 function abrirEdicao(item) {
   produtoEmEdicao = item;
@@ -302,6 +411,7 @@ function abrirEdicao(item) {
 
   formularioEdicao.scrollIntoView({ behavior: "smooth" });
 }
+
 
 // CONFIGURAR EDIÇÃO
 function configurarEdicao() {
@@ -357,10 +467,62 @@ function configurarEdicao() {
     try {
       let imagemUrl = produtoEmEdicao.image_url;
 
-      // ENVIAR NOVA FOTO, SE FOI ESCOLHIDA
       if (arquivo) {
         const nomeArquivo =
           `${crypto.randomUUID()}-${arquivo.name}`;
+
+        const { error: erroUpload } = await supabaseClient
+          .storage
+          .from("product-images")
+          .upload(nomeArquivo, arquivo, {
+            contentType: arquivo.type
+          });
+
+        if (erroUpload) throw erroUpload;
+
+        const { data: imagemPublica } = supabaseClient
+          .storage
+          .from("product-images")
+          .getPublicUrl(nomeArquivo);
+
+        imagemUrl = imagemPublica.publicUrl;
+      }
+
+      const { error: erroAtualizacao } = await supabaseClient
+        .from("products")
+        .update({
+          name: nome,
+          category: categoria,
+          description: descricao || null,
+          image_url: imagemUrl
+        })
+        .eq("id", produtoEmEdicao.id);
+
+      if (erroAtualizacao) throw erroAtualizacao;
+
+      mensagem.textContent = "Presente atualizado com sucesso! ♡";
+
+      produtoEmEdicao = null;
+
+      await carregarResumo();
+
+      formularioEdicao.reset();
+      formularioEdicao.style.display = "none";
+
+    } catch (erro) {
+      console.error("Erro ao editar presente:", erro);
+      mensagem.textContent = erro.message || "Não foi possível atualizar.";
+    } finally {
+      botaoSalvar.disabled = false;
+      botaoSalvar.textContent = "Salvar alterações";
+    }
+  });
+}
+
+
+// INICIAR
+iniciarPainel();
+       `${crypto.randomUUID()}-${arquivo.name}`;
 
         const { error: erroUpload } = await supabaseClient
           .storage
