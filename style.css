@@ -185,3 +185,33 @@ footer small {
     grid-template-columns: repeat(4, 1fr);
   }
   }
+
+/* Filtros do painel administrativo */
+#filtros-admin {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.filtro-admin {
+  border: 1px solid #B99AC3;
+  border-radius: 30px;
+  padding: 10px 16px;
+  background: #FFFFFF;
+  color: #80618C;
+  font-family: Arial, sans-serif;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.filtro-admin.ativo {
+  background: #80618C;
+  color: #FFFFFF;
+  border-color: #80618C;
+}
+
+.filtro-admin:active {
+  transform: scale(0.97);
+}
