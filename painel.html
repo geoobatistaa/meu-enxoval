@@ -72,6 +72,46 @@
 
   <button class="botao" id="adicionar-presente">
         </button>
+        
+<form id="form-produto" style="display:none; background:white; padding:22px; border-radius:18px; margin:18px 0;">
+
+  <h3 style="color:#80618C; margin-bottom:15px;">
+    Novo presente ♡
+  </h3>
+
+  <label for="nome-produto">Nome do presente</label>
+  <input type="text" id="nome-produto" placeholder="Ex.: Jogo de panelas" required>
+
+  <label for="categoria-produto">Categoria</label>
+  <select id="categoria-produto" required>
+    <option value="">Escolha uma categoria</option>
+    <option value="Cozinha">Cozinha</option>
+    <option value="Quarto">Quarto</option>
+    <option value="Banheiro">Banheiro</option>
+    <option value="Sala">Sala</option>
+    <option value="Lavanderia">Lavanderia</option>
+    <option value="Decoração">Decoração</option>
+    <option value="Eletrodomésticos">Eletrodomésticos</option>
+    <option value="Outros">Outros</option>
+  </select>
+
+  <label for="descricao-produto">Descrição (opcional)</label>
+  <textarea id="descricao-produto" placeholder="Detalhes do presente"></textarea>
+
+  <label for="imagem-produto">Foto do produto</label>
+  <input type="file" id="imagem-produto" accept="image/jpeg,image/png,image/webp" required>
+
+  <button class="botao" type="submit">
+    Salvar presente
+  </button>
+
+  <button class="botao" type="button" id="cancelar-produto" style="background:#B99AC3;">
+    Cancelar
+  </button>
+
+  <p id="mensagem-produto"></p>
+</form>
+        
 
         <div id="lista-admin"></div>
       </section>
