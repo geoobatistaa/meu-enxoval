@@ -721,3 +721,49 @@ footer small {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+/* Etiquetas de status dos presentes */
+#lista-admin .produto p.status-produto {
+  display: inline-block;
+  align-self: flex-start;
+  width: fit-content;
+  margin: 10px 0 12px;
+  padding: 6px 14px;
+  border-radius: 30px;
+  font-family: Arial, sans-serif;
+  font-size: 0.78rem;
+  font-weight: bold;
+}
+
+#lista-admin .status-available {
+  background: #F2EAF3;
+  color: #80618C;
+  border: 1px solid #E9DCEB;
+}
+
+#lista-admin .status-reserved {
+  background: #E9DCEB;
+  color: #80618C;
+  border: 1px solid #D8C6DC;
+}
+
+#lista-admin .status-purchased {
+  background: #E8F0E8;
+  color: #58765D;
+  border: 1px solid #D4E3D4;
+}
+
+/* Cards um pouco mais compactos */
+#lista-admin .produto {
+  padding: 13px;
+}
+
+#lista-admin .produto img {
+  aspect-ratio: 5 / 4;
+}
+
+/* Botão excluir mais discreto */
+#lista-admin .produto .botao:last-of-type {
+  background: #F8F1F0;
+  color: #9B858F;
+  border: 1px solid #E9DCEB;
+}
