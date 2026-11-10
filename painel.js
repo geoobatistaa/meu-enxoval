@@ -116,10 +116,17 @@ function mostrarListaAdmin() {
 }
 
 document
-  .getElementById("adicionar-presente")
-  .addEventListener("click", () => {
-    alert("O cadastro de presentes será implementado na próxima etapa. ♡");
-  });
+  const botaoAdicionar = document.getElementById("adicionar-presente");
+const formularioProduto = document.getElementById("form-produto");
+const botaoCancelar = document.getElementById("cancelar-produto");
 
-iniciarPainel();
+botaoAdicionar.addEventListener("click", () => {
+  formularioProduto.style.display = "block";
+  formularioProduto.scrollIntoView({ behavior: "smooth" });
+});
+
+botaoCancelar.addEventListener("click", () => {
+  formularioProduto.style.display = "none";
+  formularioProduto.reset();
+});
                      
