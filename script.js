@@ -16,13 +16,12 @@ let todosPresentes = [];
 
 const areaCategorias = document.getElementById("categorias");
 const areaPresentes = document.getElementById("presentes");
-
 const campoCodigo = document.getElementById("codigo-reserva");
 const botaoConsultar = document.getElementById("botao-consultar-reserva");
 const resultadoReserva = document.getElementById("resultado-reserva");
 
 
-// CATEGORIAS
+// MOSTRAR CATEGORIAS
 function mostrarCategorias() {
   areaCategorias.innerHTML = "";
 
@@ -35,7 +34,6 @@ function mostrarCategorias() {
 
   categorias.forEach(categoria => {
     const botao = document.createElement("button");
-
     botao.className = "categoria";
     botao.type = "button";
 
@@ -66,7 +64,6 @@ function mostrarPresentes() {
 
   const titulo = document.createElement("h2");
   titulo.textContent = "Nossos presentes";
-
   titulo.style.cssText =
     "grid-column:1/-1;color:#80618C;font-weight:normal;margin-bottom:8px;";
 
@@ -121,7 +118,6 @@ function mostrarPresentes() {
     }
 
     const botao = document.createElement("button");
-
     botao.className = "botao";
     botao.type = "button";
     botao.textContent = "Quero presentear";
@@ -136,37 +132,37 @@ function mostrarPresentes() {
       botao.disabled = true;
       botao.textContent = "Reservando...";
 
-      const { data, error } = await supabaseClient.rpc(
-        "reserve_product_with_code",
-        { p_product_id: item.id }
-      );
+      try {
+        const { data, error } = await supabaseClient.rpc(
+          "reserve_product_with_code",
+          { p_product_id: item.id }
+        );
 
-      if (error) {
-        alert("Não foi possível reservar: " + error.message);
+        if (error) throw error;
 
-        botao.disabled = false;
-        botao.textContent = "Quero presentear";
-        return;
-      }
+        if (!data) {
+          alert("Não recebemos o código da reserva. Entre em contato com os noivos.");
+          return;
+        }
 
-      if (!data) {
         alert(
-          "A reserva foi processada, mas não recebemos o código. Entre em contato com os noivos."
+          `Presente reservado com sucesso! ♡\n\n` +
+          `Ficamos muito felizes com seu carinho e por fazer parte desse momento tão especial!\n\n` +
+          `Seu código de reserva é:\n\n${data}\n\n` +
+          `Guarde esse código com carinho! Você poderá utilizá-lo para consultar os detalhes da sua reserva ou cancelá-la, caso necessário.\n\n` +
+          `Muito obrigada por fazer parte da nossa história! ♡`
         );
 
         await carregarPresentes();
-        return;
+
+      } catch (error) {
+        console.error("Erro ao reservar:", error);
+        alert("Não foi possível reservar: " + error.message);
+
+      } finally {
+        botao.disabled = false;
+        botao.textContent = "Quero presentear";
       }
-
-      alert(
-        `Presente reservado com sucesso! ♡\n\n` +
-        `Ficamos muito felizes com seu carinho e por fazer parte desse momento tão especial!\n\n` +
-        `Seu código de reserva é:\n\n${data}\n\n` +
-        `Guarde esse código com carinho! Você poderá utilizá-lo para consultar os detalhes da sua reserva ou cancelá-la, caso necessário.\n\n` +
-        `Muito obrigada por fazer parte da nossa história! ♡`
-      );
-
-      await carregarPresentes();
     });
 
     card.appendChild(botao);
@@ -175,7 +171,7 @@ function mostrarPresentes() {
 }
 
 
-// CARREGAR PRESENTES DO SUPABASE
+// CARREGAR PRESENTES
 async function carregarPresentes() {
   areaPresentes.innerHTML = "<p>Carregando presentes...</p>";
 
@@ -204,9 +200,7 @@ botaoConsultar.addEventListener("click", async () => {
   const codigo = campoCodigo.value.trim().toUpperCase();
 
   if (!codigo) {
-    resultadoReserva.textContent =
-      "Digite seu código de reserva.";
-
+    resultadoReserva.textContent = "Digite seu código de reserva.";
     return;
   }
 
@@ -220,21 +214,18 @@ botaoConsultar.addEventListener("click", async () => {
       { p_code: codigo }
     );
 
-    if (error) {
-      throw error;
-    }
+    if (error) throw error;
 
     if (!data) {
       resultadoReserva.textContent =
         "Não encontramos uma reserva ativa com esse código. Confira se digitou corretamente.";
-
       return;
     }
 
     mostrarResultadoReserva(data);
 
   } catch (error) {
-    console.error("Erro ao consultar reserva:", error);
+    console.error("Erro ao consultar:", error);
 
     resultadoReserva.textContent =
       "Não foi possível consultar sua reserva. Tente novamente.";
@@ -255,28 +246,23 @@ function mostrarResultadoReserva(reserva) {
 
   const titulo = document.createElement("h3");
   titulo.textContent = "Sua reserva ♡";
-
   caixa.appendChild(titulo);
 
   const codigo = document.createElement("p");
   codigo.textContent = `Código: ${reserva.code}`;
-
   caixa.appendChild(codigo);
 
   const nome = document.createElement("p");
   nome.textContent = `Presente: ${reserva.product_name}`;
-
   caixa.appendChild(nome);
 
   const categoria = document.createElement("p");
   categoria.textContent = `Categoria: ${reserva.category}`;
-
   caixa.appendChild(categoria);
 
   if (reserva.description) {
     const descricao = document.createElement("p");
     descricao.textContent = reserva.description;
-
     caixa.appendChild(descricao);
   }
 
@@ -293,10 +279,8 @@ function mostrarResultadoReserva(reserva) {
 
   if (reserva.image_url) {
     const imagem = document.createElement("img");
-
     imagem.src = reserva.image_url;
     imagem.alt = reserva.product_name;
-
     imagem.style.cssText =
       "max-width:180px;width:100%;border-radius:12px;margin:12px 0;";
 
@@ -305,7 +289,6 @@ function mostrarResultadoReserva(reserva) {
 
   if (reserva.product_status === "reserved") {
     const botaoCancelar = document.createElement("button");
-
     botaoCancelar.type = "button";
     botaoCancelar.textContent = "Cancelar minha reserva";
     botaoCancelar.className = "botao";
@@ -320,37 +303,34 @@ function mostrarResultadoReserva(reserva) {
       botaoCancelar.disabled = true;
       botaoCancelar.textContent = "Cancelando...";
 
-      const { data, error } = await supabaseClient.rpc(
-        "cancel_reservation_by_code",
-        { p_code: reserva.code }
-      );
-
-      if (error) {
-        console.error("Erro ao cancelar:", error);
-
-        alert("Não foi possível cancelar a reserva. Tente novamente.");
-
-        botaoCancelar.disabled = false;
-        botaoCancelar.textContent = "Cancelar minha reserva";
-
-        return;
-      }
-
-      if (!data) {
-        alert(
-          "Não foi possível cancelar. Talvez o presente já tenha sido marcado como comprado."
+      try {
+        const { data, error } = await supabaseClient.rpc(
+          "cancel_reservation_by_code",
+          { p_code: reserva.code }
         );
 
+        if (error) throw error;
+
+        if (!data) {
+          alert(
+            "Não foi possível cancelar. Talvez o presente já tenha sido marcado como comprado."
+          );
+          return;
+        }
+
+        resultadoReserva.textContent =
+          "Sua reserva foi cancelada com sucesso. O presente voltou a ficar disponível na lista. ♡";
+
+        await carregarPresentes();
+
+      } catch (error) {
+        console.error("Erro ao cancelar:", error);
+        alert("Não foi possível cancelar a reserva. Tente novamente.");
+
+      } finally {
         botaoCancelar.disabled = false;
         botaoCancelar.textContent = "Cancelar minha reserva";
-
-        return;
       }
-
-      resultadoReserva.textContent =
-        "Sua reserva foi cancelada com sucesso. O presente voltou a ficar disponível na lista. ♡";
-
-      await carregarPresentes();
     });
 
     caixa.appendChild(botaoCancelar);
@@ -363,35 +343,6 @@ function mostrarResultadoReserva(reserva) {
 // INICIAR SITE
 mostrarCategorias();
 carregarPresentes();
-eaCategorias.appendChild(titulo);
-
-  categorias.forEach(categoria => {
-    const botao = document.createElement("button");
-    botao.className = "categoria";
-    botao.type = "button";
-    botao.classList.toggle(
-      "ativa",
-      categoriaSelecionada === categoria.nome
-    );
-
-    botao.innerHTML = `
-      <span class="icone">${categoria.icone}</span>
-      <span>${categoria.nome}</span>
-    `;
-
-    botao.addEventListener("click", () => {
-      categoriaSelecionada = categoria.nome;
-      mostrarCategorias();
-      mostrarPresentes();
-    });
-
-    areaCategorias.appendChild(botao);
-  });
-}
-
-function mostrarPresentes() {
-  areaPresentes.innerHTML = "";
-
   const titulo = document.createElement("h2");
   titulo.textContent = "Nossos presentes";
   titulo.style.cssText =
