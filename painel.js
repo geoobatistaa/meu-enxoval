@@ -85,10 +85,12 @@ async function iniciarPainel() {
 }
 
 
-// CARREGAR RESUMO
+// CARREGAR RESUMO E PRESENTES NÃO ARQUIVADOS
 async function carregarResumo() {
   const { data, error } = await supabaseClient
-    .rpc("get_admin_products");
+    .from("products")
+    .select("*")
+    .is("deleted_at", null);
 
   if (error) {
     console.error("Erro ao carregar produtos:", error);
@@ -182,7 +184,6 @@ function mostrarListaAdmin() {
       hidden: "Oculto"
     };
 
-    // STATUS COM CLASSE INDIVIDUAL
     const status = document.createElement("p");
     status.className = `status-produto status-${item.status}`;
     status.textContent = nomesStatus[item.status] || item.status;
@@ -223,7 +224,7 @@ function mostrarListaAdmin() {
     botaoExcluir.style.background = "#B99AC3";
 
     botaoExcluir.addEventListener("click", () => {
-      excluirPresente(item);
+      excluirPresente(item, botaoExcluir);
     });
 
     card.appendChild(botaoExcluir);
@@ -269,27 +270,40 @@ async function marcarComoComprado(item, botao) {
 }
 
 
-// EXCLUIR PRESENTE
-async function excluirPresente(item) {
-  const confirmar = confirm(
-    `Tem certeza que deseja excluir "${item.name}"?`
+// ARQUIVAR PRESENTE (SEM APAGAR O HISTÓRICO)
+async function excluirPresente(item, botao) {
+  const confirmar = await pedirConfirmacao(
+    "Excluir presente? ♡",
+    `Deseja retirar "${item.name}" da área administrativa e da lista dos convidados? O histórico de reservas será preservado.`,
+    "Sim, excluir ♡"
   );
 
   if (!confirmar) return;
 
-  const { error } = await supabaseClient
-    .from("products")
-    .delete()
-    .eq("id", item.id);
+  botao.disabled = true;
+  botao.textContent = "Excluindo...";
 
-  if (error) {
-    console.error("Erro ao excluir:", error);
-    alert("Não foi possível excluir: " + error.message);
-    return;
+  try {
+    const { error } = await supabaseClient
+      .from("products")
+      .update({
+        deleted_at: new Date().toISOString(),
+        is_published: false
+      })
+      .eq("id", item.id);
+
+    if (error) throw error;
+
+    await carregarResumo();
+
+  } catch (erro) {
+    console.error("Erro ao arquivar presente:", erro);
+
+    alert("Não foi possível excluir: " + erro.message);
+
+    botao.disabled = false;
+    botao.textContent = "Excluir";
   }
-
-  alert("Presente excluído com sucesso! ♡");
-  await carregarResumo();
 }
 
 
@@ -526,4 +540,4 @@ function configurarEdicao() {
 
 // INICIAR
 iniciarPainel();
-          
+                                    
