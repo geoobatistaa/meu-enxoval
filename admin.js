@@ -34,5 +34,6 @@ formulario.addEventListener("submit", async (evento) => {
   }
 
   mensagem.textContent = "Login realizado com sucesso! ♡";
+
+  window.location.href = "painel.html";
 });
-window.location.href = "painel.html";
